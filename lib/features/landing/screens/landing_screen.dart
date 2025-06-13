@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../utils/device_utility.dart';
+import '../../../common/utils/device_utility.dart';
+
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
