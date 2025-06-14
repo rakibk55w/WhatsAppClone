@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:enough_giphy_flutter/enough_giphy_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:giphy_get/giphy_get.dart';
 import 'package:image_picker/image_picker.dart';
 //import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -128,16 +128,22 @@ class AppDeviceUtils {
   }
 
   Future<GiphyGif?> pickGIF(BuildContext context) async {
-    GiphyGif? gif;
     try {
-      gif = await Giphy.getGif(
+      final gif = await GiphyGet.getGif(
         context: context,
-        apiKey: 'pwXu0t7iuNVm8VO5bgND2NzwCpVH9S0F',
+        apiKey: 'API_KEY',
+        lang: GiphyLanguage.english,
+        modal: true,
+        showGIFs: true,
+        showEmojis: true,
+        showStickers: true,
       );
+      return gif;
     } catch (e) {
       if (context.mounted) {
         showSnackBar(context: context, content: e.toString());
-      }    }
-    return gif;
+      }
+      return null;
+    }
   }
 }
