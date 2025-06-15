@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:whats_app_clone/common/utils/colors.dart';
+import 'package:whats_app_clone/router.dart';
 
 import 'features/landing/screens/landing_screen.dart';
 
@@ -13,9 +15,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: AppColors.backgroundColor
       ),
+      onGenerateRoute: (settings) => generateRoute(settings),
       home: const LandingScreen(),
     );
   }
