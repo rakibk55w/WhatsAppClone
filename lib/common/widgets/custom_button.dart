@@ -14,6 +14,7 @@ class CustomButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.tabColor,
         minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       ),
       child: Text(text, style: const TextStyle(color: AppColors.blackColor)),
     );
