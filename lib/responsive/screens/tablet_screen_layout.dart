@@ -1,6 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
-import 'package:whats_app_clone/responsive/screens/tablet_profile_bar.dart';
+import 'package:whats_app_clone/widgets/tablet_profile_bar.dart';
 import 'package:whats_app_clone/widgets/contacts_list.dart';
 
 class TabletScreenLayout extends StatelessWidget {
@@ -12,13 +14,16 @@ class TabletScreenLayout extends StatelessWidget {
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: 400,
+              maxWidth: max(400, AppDeviceUtils.getScreenWidth(context) * 0.25),
+            ),
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   /// Tab profile
                   TabletProfileBar(),
-
 
                   /// Tab search
                   ContactsList(),
@@ -28,13 +33,17 @@ class TabletScreenLayout extends StatelessWidget {
           ),
 
           /// Message screen
-          Container(
-            width: AppDeviceUtils.getScreenWidth(context) * 0.75,
-            decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/images/backgroundImage.png'), fit: BoxFit.cover),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/backgroundImage.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-          )
-          ]
+          ),
+        ],
       ),
     );
   }
