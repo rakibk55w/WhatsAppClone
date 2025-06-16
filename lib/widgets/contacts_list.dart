@@ -11,6 +11,7 @@ class ContactsList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: ListView.builder(
+        physics: BouncingScrollPhysics(),
         shrinkWrap: true,
         itemCount: info.length,
         itemBuilder: (context, index) {

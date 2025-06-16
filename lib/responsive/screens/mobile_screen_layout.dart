@@ -11,6 +11,7 @@ class MobileScreenLayout extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          scrolledUnderElevation: 0.0,
           backgroundColor: AppColors.appBarColor,
           elevation: 0,
           title: const Text(
