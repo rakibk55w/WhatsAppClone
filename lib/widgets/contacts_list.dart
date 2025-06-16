@@ -10,47 +10,48 @@ class ContactsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: info.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onTap: (){},
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: ListTile(
-                      title: Text(
-                        info[index]['name'].toString(),
-                        style: const TextStyle(fontSize: 18),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: info.length,
+        itemBuilder: (context, index) {
+          return Column(
+            children: [
+              InkWell(
+                onTap: () {},
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: ListTile(
+                    title: Text(
+                      info[index]['name'].toString(),
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    leading: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(
+                        info[index]['profilePic'].toString(),
                       ),
-                      leading: CircleAvatar(
-                        radius: 30,
-                        backgroundImage: NetworkImage(
-                          info[index]['profilePic'].toString(),
-                        ),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 6.0),
+                      child: Text(
+                        info[index]['message'].toString(),
+                        style: const TextStyle(fontSize: 14),
                       ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 6.0),
-                        child: Text(
-                          info[index]['message'].toString(),
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
-                      trailing: Text(
-                        info[index]['time'].toString(),
-                        style: const TextStyle(fontSize: 12, color: AppColors.greyColor),
+                    ),
+                    trailing: Text(
+                      info[index]['time'].toString(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.greyColor,
                       ),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-          const Divider(color: AppColors.dividerColor, indent: 85,)
-        ],
+                ),
+              ),
+              const Divider(color: AppColors.dividerColor, indent: 85),
+            ],
+          );
+        },
       ),
     );
   }
