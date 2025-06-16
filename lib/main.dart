@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
+import 'package:whats_app_clone/responsive/screens/mobile_screen_layout.dart';
 import 'package:whats_app_clone/router.dart';
 
 import 'features/landing/screens/landing_screen.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.backgroundColor
       ),
       onGenerateRoute: (settings) => generateRoute(settings),
-      home: const LandingScreen(),
+      home: const MobileScreenLayout(),
     );
   }
 }
