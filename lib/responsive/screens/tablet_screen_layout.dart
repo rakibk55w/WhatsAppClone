@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/widgets/tablet_profile_bar.dart';
 import 'package:whats_app_clone/widgets/contacts_list.dart';
+import 'package:whats_app_clone/widgets/tablet_search_bar.dart';
 
 class TabletScreenLayout extends StatelessWidget {
   const TabletScreenLayout({super.key});
@@ -26,6 +27,9 @@ class TabletScreenLayout extends StatelessWidget {
                   TabletProfileBar(),
 
                   /// Tab search
+                  TabletSearchBar(),
+
+                  /// Chat list
                   ContactsList(),
                 ],
               ),
