@@ -7,6 +7,7 @@ import 'package:whats_app_clone/widgets/tablet_profile_bar.dart';
 import 'package:whats_app_clone/widgets/contacts_list.dart';
 import 'package:whats_app_clone/widgets/tablet_search_bar.dart';
 
+import '../../common/utils/colors.dart';
 import '../../widgets/tablet_chat_appbar.dart';
 
 class TabletScreenLayout extends StatelessWidget {
@@ -55,7 +56,63 @@ class TabletScreenLayout extends StatelessWidget {
 
                   /// Chat list
                   Expanded(child: ChatList()),
+
                   /// Message input box
+                  Container(
+                    height: AppDeviceUtils.getScreenHeight(context) * 0.08,
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: AppColors.dividerColor),
+                      ),
+                      color: AppColors.chatBarMessage,
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.emoji_emotions_outlined,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.attach_file,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 10, right: 15),
+                            child: TextField(
+                              decoration: InputDecoration(
+                                fillColor: AppColors.searchBarColor,
+                                filled: true,
+                                hintText: 'Type a message',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  borderSide: const BorderSide(
+                                    width: 0,
+                                    style: BorderStyle.none,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.only(left: 20),
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.mic,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
