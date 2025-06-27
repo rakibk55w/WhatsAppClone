@@ -24,7 +24,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: AppColors.backgroundColor
+        scaffoldBackgroundColor: AppColors.backgroundColor,
+        appBarTheme: const AppBarTheme(color: AppColors.appBarColor)
       ),
       onGenerateRoute: (settings) => generateRoute(settings),
       home: const LandingScreen(),
