@@ -1,18 +1,23 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/common/widgets/custom_button.dart';
 
-class LoginScreen extends StatefulWidget {
+import '../controller/authentication_controller.dart';
+
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   static const String routeName = '/login-screen';
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final phoneNumberController = TextEditingController();
+  Country? country;
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +36,12 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 10),
             const Text('WhatsApp will need to verify your phone number.'),
             const SizedBox(height: 20),
-            TextButton(onPressed: (){}, child: const Text('Pick Country')),
+            TextButton(onPressed: pickCountry, child: const Text('Pick Country')),
             SizedBox(height: 5,),
             Row(
               children: [
-                Text('+91'),
+                if (country!=null)
+                  Text('+${country!.phoneCode}'),
                 SizedBox(width: 10),
                 SizedBox(
                   width: AppDeviceUtils.getScreenWidth(context) * 0.7,
@@ -49,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: AppDeviceUtils.getScreenHeight(context) * 0.6,),
             SizedBox(
               width: 90,
-              child: CustomButton(text: 'NEXT', onPressed: (){}),
+              child: CustomButton(text: 'NEXT', onPressed: sendPhoneNumber),
             ),
           ],
         ),
@@ -61,5 +67,20 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     phoneNumberController.dispose();
     super.dispose();
+  }
+
+  void pickCountry(){
+    showCountryPicker(useSafeArea: true, context: context, onSelect: (Country selectedCountry){
+      setState(() {
+        country = selectedCountry;
+      });
+    });
+  }
+
+  void sendPhoneNumber(){
+    String phoneNumber = phoneNumberController.text.trim();
+    if(country!=null && phoneNumber.isNotEmpty){
+      ref.read(authenticationControllerProvider).signInWithPhone(context, '+${country!.phoneCode}$phoneNumber');
+    }
   }
 }

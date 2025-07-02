@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
-import 'package:whats_app_clone/responsive/responsive_layout.dart';
-import 'package:whats_app_clone/responsive/screens/mobile_screen_layout.dart';
-import 'package:whats_app_clone/responsive/screens/tablet_screen_layout.dart';
 import 'package:whats_app_clone/router.dart';
 
 import 'common/env/env.dart';
 import 'features/landing/screens/landing_screen.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(url: 'https://zagbwjiburabqeydosma.supabase.co', anonKey: Env.apiKey);
-  runApp(const MyApp());
+  await Supabase.initialize(
+    url: 'https://zagbwjiburabqeydosma.supabase.co',
+    anonKey: Env.apiKey,
+  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -25,13 +26,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: AppColors.backgroundColor,
-        appBarTheme: const AppBarTheme(color: AppColors.appBarColor)
+        appBarTheme: const AppBarTheme(color: AppColors.appBarColor),
       ),
       onGenerateRoute: (settings) => generateRoute(settings),
       home: const LandingScreen(),
     );
   }
 }
-
-
-
