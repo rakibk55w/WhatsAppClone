@@ -12,30 +12,54 @@ import '../../../info.dart';
 import '../../../models/user_model.dart';
 import '../screens/user_information_screen.dart';
 
-final authenticationRepositoryProvider = Provider((ref) => AuthenticationRepository(supabase: Supabase.instance.client));
+final authenticationRepositoryProvider = Provider(
+  (ref) => AuthenticationRepository(supabase: Supabase.instance.client),
+);
 
 class AuthenticationRepository {
   final SupabaseClient supabase;
 
   AuthenticationRepository({required this.supabase});
 
+  Future<UserModel?> getCurrentUserData() async {
+    UserModel? user;
+    final uid = supabase.auth.currentUser?.id;
+
+    if (uid == null) {
+      return user;
+    }
+
+    var userData =
+        await supabase.from('users').select().eq('uid', uid).single();
+    user = UserModel.fromJson(userData);
+
+    return user;
+  }
+
   /// Send OTP to user's phone
   Future<void> signInWithPhone(BuildContext context, String phoneNumber) async {
     try {
-      await supabase.auth.signInWithOtp(
-        phone: phoneNumber,
+      await supabase.auth.signInWithOtp(phone: phoneNumber);
+      AppDeviceUtils.showSnackBar(
+        context: context,
+        content: 'OTP sent to $phoneNumber',
       );
-      AppDeviceUtils.showSnackBar(context: context, content: 'OTP sent to $phoneNumber');
 
       Navigator.pushNamed(context, OtpScreen.routeName, arguments: phoneNumber);
     } catch (e) {
-      AppDeviceUtils.showSnackBar(context: context, content: 'OTP sending failed: $e');
+      AppDeviceUtils.showSnackBar(
+        context: context,
+        content: 'OTP sending failed: $e',
+      );
     }
   }
 
   /// Verify the OTP code entered by user
   Future<void> verifyOTP(
-      BuildContext context, String phoneNumber, String token) async {
+    BuildContext context,
+    String phoneNumber,
+    String token,
+  ) async {
     try {
       final res = await supabase.auth.verifyOTP(
         phone: phoneNumber,
@@ -43,21 +67,43 @@ class AuthenticationRepository {
         type: OtpType.sms,
       );
       if (res.session != null) {
-        AppDeviceUtils.showSnackBar(context: context, content: 'OTP verified successfully');
+        AppDeviceUtils.showSnackBar(
+          context: context,
+          content: 'OTP verified successfully',
+        );
       }
-      Navigator.pushNamedAndRemoveUntil(context, UserInformationScreen.routeName, (route) => false);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        UserInformationScreen.routeName,
+        (route) => false,
+      );
     } catch (e) {
-      AppDeviceUtils.showSnackBar(context: context, content: 'OTP verification failed: $e');
+      AppDeviceUtils.showSnackBar(
+        context: context,
+        content: 'OTP verification failed: $e',
+      );
     }
   }
 
-  void saveUserDataToSupabase({required String name, required File? profilePic, required Ref ref, required BuildContext context}) async{
-    try{
+  /// Store user data to supabase
+  void saveUserDataToSupabase({
+    required String name,
+    required File? profilePic,
+    required Ref ref,
+    required BuildContext context,
+  }) async {
+    try {
       String uid = supabase.auth.currentUser!.id;
       String? imageUrl = info[0]['profilePic'].toString();
 
-      if(profilePic != null){
-        imageUrl = await ref.read(commonSupabaseStorageRepositoryProvider).storeFileToSupabase(bucket: 'profile-pic', path: 'profilePic/$uid', file: profilePic);
+      if (profilePic != null) {
+        imageUrl = await ref
+            .read(commonSupabaseStorageRepositoryProvider)
+            .storeFileToSupabase(
+              bucket: 'profile-pic',
+              path: '$uid/profile.jpg',
+              file: profilePic,
+            );
       }
 
       var user = UserModel(
@@ -65,13 +111,17 @@ class AuthenticationRepository {
         uid: uid,
         profilePic: imageUrl,
         isOnline: true,
-        phoneNumber: supabase.auth.currentUser!.id,
+        phoneNumber: supabase.auth.currentUser!.phone!,
         groupId: [],
       );
 
       await supabase.from('users').upsert(user.toJson());
 
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MobileScreenLayout()), (route) => false);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MobileScreenLayout()),
+        (route) => false,
+      );
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }

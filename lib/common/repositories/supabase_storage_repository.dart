@@ -19,19 +19,19 @@ class CommonSupabaseStorageRepository {
   }) async {
     final fileBytes = await file.readAsBytes();
 
-    final response = await supabaseClient.storage
-        .from(bucket)
-        .uploadBinary(
-          path,
-          fileBytes,
-          fileOptions: const FileOptions(upsert: true),
-        );
+    try {
+      await supabaseClient.storage
+          .from(bucket)
+          .uploadBinary(
+            path,
+            fileBytes,
+            fileOptions: const FileOptions(upsert: true),
+          );
 
-    if (response.isEmpty) {
-      throw Exception('File upload failed.');
+      final publicUrl = supabaseClient.storage.from(bucket).getPublicUrl(path);
+      return publicUrl;
+    } catch (e){
+      throw Exception('File upload failed: $e');
     }
-
-    final publicUrl = supabaseClient.storage.from(bucket).getPublicUrl(path);
-    return publicUrl;
   }
 }

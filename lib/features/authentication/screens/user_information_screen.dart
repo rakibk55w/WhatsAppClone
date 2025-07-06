@@ -1,19 +1,22 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/info.dart';
 
-class UserInformationScreen extends StatefulWidget {
+import '../controller/authentication_controller.dart';
+
+class UserInformationScreen extends ConsumerStatefulWidget {
   const UserInformationScreen({super.key});
 
   static const String routeName = '/user-information';
 
   @override
-  State<UserInformationScreen> createState() => _UserInformationScreenState();
+  ConsumerState<UserInformationScreen> createState() => _UserInformationScreenState();
 }
 
-class _UserInformationScreenState extends State<UserInformationScreen> {
+class _UserInformationScreenState extends ConsumerState<UserInformationScreen> {
   final TextEditingController nameController = TextEditingController();
   File? image;
 
@@ -63,7 +66,7 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
                       decoration: InputDecoration(hintText: 'Enter your name'),
                     ),
                   ),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.done)),
+                  IconButton(onPressed: storeUserData, icon: Icon(Icons.done)),
                 ],
               ),
             ],
@@ -76,5 +79,13 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
   void selectImage() async {
     image = await AppDeviceUtils().pickImageFromGallery(context);
     setState(() {});
+  }
+
+  void storeUserData() async{
+    String name = nameController.text.trim();
+
+    if (name.isNotEmpty) {
+        ref.read(authenticationControllerProvider).saveUserDataToSupabase(context, name, image);
+    }
   }
 }
