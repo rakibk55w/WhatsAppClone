@@ -36,10 +36,11 @@ class SelectContactsRepository {
 
       for (var userMap in response) {
         var userData = UserModel.fromJson(userMap);
-        String selectedPhoneNum = selectedContact.phones[0].number.replaceAll(
-          ' ',
-          '',
-        );
+        String selectedPhoneNum = selectedContact.phones[0].number
+            .replaceAll(' ', '')
+            .replaceAll('-', '')
+            .replaceAll('+', '');
+
         if (selectedPhoneNum == userData.phoneNumber) {
           isFound = true;
           Navigator.pushNamed(context, MobileChatScreen.routeName);

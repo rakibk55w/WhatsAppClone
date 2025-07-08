@@ -10,6 +10,7 @@ import 'package:whats_app_clone/responsive/screens/mobile_screen_layout.dart';
 
 import '../../../info.dart';
 import '../../../models/user_model.dart';
+import '../screens/login_screen.dart';
 import '../screens/user_information_screen.dart';
 
 final authenticationRepositoryProvider = Provider(
@@ -81,6 +82,19 @@ class AuthenticationRepository {
       AppDeviceUtils.showSnackBar(
         context: context,
         content: 'OTP verification failed: $e',
+      );
+    }
+  }
+
+  /// Logout user
+  Future<void> logout(BuildContext context) async {
+    try {
+      await supabase.auth.signOut();
+      Navigator.pushNamedAndRemoveUntil(context, LoginScreen.routeName, (route) => false);
+    } catch (e) {
+      AppDeviceUtils.showSnackBar(
+        context: context,
+        content: 'Logout failed: $e',
       );
     }
   }

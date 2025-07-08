@@ -33,6 +33,10 @@ class AuthenticationController {
     authRepo.verifyOTP(context, phoneNumber, userOTP);
   }
 
+  void logout(BuildContext context) {
+    authRepo.logout(context);
+  }
+
   void saveUserDataToSupabase(
     BuildContext context,
     String name,
