@@ -90,7 +90,11 @@ class AuthenticationRepository {
   Future<void> logout(BuildContext context) async {
     try {
       await supabase.auth.signOut();
-      Navigator.pushNamedAndRemoveUntil(context, LoginScreen.routeName, (route) => false);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        LoginScreen.routeName,
+        (route) => false,
+      );
     } catch (e) {
       AppDeviceUtils.showSnackBar(
         context: context,
@@ -139,5 +143,13 @@ class AuthenticationRepository {
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
+  }
+
+  Stream<UserModel> userData(String userId) {
+    return supabase
+        .from('users')
+        .stream(primaryKey: ['uid'])
+        .eq('uid', userId)
+        .map((event) => UserModel.fromJson(event.first));
   }
 }
