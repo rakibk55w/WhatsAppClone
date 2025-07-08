@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
-import 'package:whats_app_clone/info.dart';
 import 'package:whats_app_clone/widgets/chat_list.dart';
 
-import '../features/authentication/controller/authentication_controller.dart';
+import '../../authentication/controller/authentication_controller.dart';
+import '../widgets/bottom_chat_field.dart';
 
 class MobileChatScreen extends ConsumerWidget {
   const MobileChatScreen({super.key, required this.name, required this.uid});
@@ -23,6 +23,9 @@ class MobileChatScreen extends ConsumerWidget {
           builder: (context, asyncSnapshot) {
             if (asyncSnapshot.connectionState == ConnectionState.waiting) {
               return Text(name);
+            }
+            if (asyncSnapshot.hasError) {
+              return SizedBox.shrink();
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,32 +55,7 @@ class MobileChatScreen extends ConsumerWidget {
           Expanded(child: ChatList()),
 
           /// Text input box
-          TextField(
-            decoration: InputDecoration(
-              fillColor: AppColors.mobileChatBoxColor,
-              filled: true,
-              prefixIcon: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Icon(Icons.emoji_emotions, color: Colors.grey),
-              ),
-              suffixIcon: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(Icons.attach_file, color: Colors.grey),
-                    Icon(Icons.camera_alt, color: Colors.grey),
-                  ],
-                ),
-              ),
-              hintText: 'Type a messsage',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(width: 0, style: BorderStyle.none),
-              ),
-              contentPadding: EdgeInsets.all(10),
-            ),
-          ),
+          BottomChatField(),
         ],
       ),
     );

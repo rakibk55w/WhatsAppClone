@@ -4,7 +4,7 @@ import 'package:whats_app_clone/features/authentication/screens/login_screen.dar
 import 'package:whats_app_clone/features/authentication/screens/otp_screen.dart';
 import 'package:whats_app_clone/features/authentication/screens/user_information_screen.dart';
 import 'package:whats_app_clone/features/select_contacts/screens/select_contacts_screen.dart';
-import 'package:whats_app_clone/screens/mobile_chat_screen.dart';
+import 'package:whats_app_clone/features/chat/screens/mobile_chat_screen.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {

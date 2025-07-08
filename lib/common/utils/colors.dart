@@ -16,4 +16,5 @@ class AppColors{
   static const Color mobileChatBoxColor = Color.fromRGBO(31, 44, 52, 1);
   static const Color greyColor = Colors.grey;
   static const Color blackColor = Colors.black;
+  static const Color sendButtonColor = Color(0xFF128C7E);
 }
