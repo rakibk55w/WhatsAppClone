@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:whats_app_clone/common/utils/device_utility.dart';
+import 'package:whats_app_clone/models/chat_contact_model.dart';
+
+import '../../../models/user_model.dart';
+
+class ChatRepository {
+  ChatRepository({required this.supabase});
+
+  final SupabaseClient supabase;
+
+  Future<void> sendTextMessage({
+    required String text,
+    required String receiverId,
+    required BuildContext context,
+    required UserModel senderData,
+  }) async {
+    try {
+      var timeSent = DateTime.now();
+
+      var userData =
+      await supabase.from('users').select().eq('id', receiverId).single();
+      UserModel receiverData = UserModel.fromJson(userData);
+      _saveDataToContactSubDatabase(senderData, receiverData, text, timeSent);
+    } catch (e) {
+      AppDeviceUtils.showSnackBar(context: context, content: e.toString());
+    }
+  }
+
+  void _saveDataToContactSubDatabase(UserModel senderData,
+      UserModel receiverData,
+      String text,
+      DateTime time,) async {
+    var receiverChatContact = ChatContactModel(
+      name: senderData.name,
+      profilePic: senderData.profilePic,
+      contactId: senderData.uid,
+      timeSent: time,
+      lastMessage: text,
+    );
+
+    await supabase.from('chats').upsert({
+      'receiver_id': receiverData.uid,
+      'sender_id': supabase.auth.currentUser!.id,
+      ...receiverChatContact.toJson()
+    });
+
+    var senderChatContact = ChatContactModel(
+      name: receiverData.name,
+      profilePic: receiverData.profilePic,
+      contactId: receiverData.uid,
+      timeSent: time,
+      lastMessage: text,
+    );
+
+    await supabase.from('chats').upsert({
+      'receiver_id': supabase.auth.currentUser!.id,
+      'sender_id': receiverData.uid,
+      ...senderChatContact.toJson(),
+    });
+  }
