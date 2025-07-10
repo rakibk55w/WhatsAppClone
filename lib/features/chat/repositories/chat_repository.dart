@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/models/chat_contact_model.dart';
+import 'package:whats_app_clone/models/message_model.dart';
 
+import '../../../common/enums/message_enum.dart';
 import '../../../models/user_model.dart';
 
 class ChatRepository {
@@ -20,18 +23,31 @@ class ChatRepository {
       var timeSent = DateTime.now();
 
       var userData =
-      await supabase.from('users').select().eq('id', receiverId).single();
+          await supabase.from('users').select().eq('id', receiverId).single();
       UserModel receiverData = UserModel.fromJson(userData);
+      var messageId = const Uuid().v1();
+
       _saveDataToContactSubDatabase(senderData, receiverData, text, timeSent);
+      _saveMessageToMessageSubDatabase(
+        receiverId: receiverId,
+        text: text,
+        timeSent: timeSent,
+        messageId: messageId,
+        senderName: senderData.name,
+        receiverName: receiverData.name,
+        messageType: MessageEnum.text,
+      );
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
   }
 
-  void _saveDataToContactSubDatabase(UserModel senderData,
-      UserModel receiverData,
-      String text,
-      DateTime time,) async {
+  void _saveDataToContactSubDatabase(
+    UserModel senderData,
+    UserModel receiverData,
+    String text,
+    DateTime time,
+  ) async {
     var receiverChatContact = ChatContactModel(
       name: senderData.name,
       profilePic: senderData.profilePic,
@@ -43,7 +59,7 @@ class ChatRepository {
     await supabase.from('chats').upsert({
       'receiver_id': receiverData.uid,
       'sender_id': supabase.auth.currentUser!.id,
-      ...receiverChatContact.toJson()
+      ...receiverChatContact.toJson(),
     });
 
     var senderChatContact = ChatContactModel(
@@ -60,3 +76,24 @@ class ChatRepository {
       ...senderChatContact.toJson(),
     });
   }
+
+  void _saveMessageToMessageSubDatabase({
+    required String receiverId,
+    required String text,
+    required DateTime timeSent,
+    required String messageId,
+    required String senderName,
+    required String receiverName,
+    required MessageEnum messageType,
+  }) async {
+    final message = MessageModel(
+      senderId: supabase.auth.currentUser!.id,
+      receiverId: receiverId,
+      text: text,
+      messageType: messageType,
+      timeSent: timeSent,
+      messageId: messageId,
+      isSeen: false,
+    );
+  }
+}
