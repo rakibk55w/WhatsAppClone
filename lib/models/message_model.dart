@@ -4,7 +4,7 @@ class MessageModel {
   MessageModel({
     required this.senderId,
     required this.receiverId,
-    required this.text,
+    required this.message,
     required this.messageType,
     required this.timeSent,
     required this.messageId,
@@ -13,7 +13,7 @@ class MessageModel {
 
   final String senderId;
   final String receiverId;
-  final String text;
+  final String message;
   final MessageEnum messageType;
   final DateTime timeSent;
   final String messageId;
@@ -23,7 +23,7 @@ class MessageModel {
     return MessageModel(
       senderId: json['senderId'] ?? '',
       receiverId: json['receiverId'] ?? '',
-      text: json['text'] ?? '',
+      message: json['message'] ?? '',
       messageType: (json['messageType'] as String).toEnum(),
       timeSent: json['timeSent'] ?? '',
       messageId: json['messageId'] ?? '',
@@ -35,7 +35,7 @@ class MessageModel {
     return {
       'senderId': senderId,
       'receiverId': receiverId,
-      'text': text,
+      'text': message,
       'messageType': messageType.type,
       'timeSent': timeSent,
       'messageId': messageId,
