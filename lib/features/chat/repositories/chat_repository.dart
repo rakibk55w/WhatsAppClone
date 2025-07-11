@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
@@ -6,6 +7,8 @@ import 'package:whats_app_clone/models/message_model.dart';
 
 import '../../../common/enums/message_enum.dart';
 import '../../../models/user_model.dart';
+
+final chatRepositoryProvider = Provider((ref) => ChatRepository(supabase: Supabase.instance.client));
 
 class ChatRepository {
   ChatRepository({required this.supabase});

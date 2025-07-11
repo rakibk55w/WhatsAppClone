@@ -55,7 +55,7 @@ class MobileChatScreen extends ConsumerWidget {
           Expanded(child: ChatList()),
 
           /// Text input box
-          BottomChatField(),
+          BottomChatField(receiverId: uid,),
         ],
       ),
     );
