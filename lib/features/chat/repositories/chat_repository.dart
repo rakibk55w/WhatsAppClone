@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
-import 'package:whats_app_clone/models/chat_contact_model.dart';
 import 'package:whats_app_clone/models/message_model.dart';
 
 import '../../../common/enums/message_enum.dart';
@@ -36,7 +35,12 @@ class ChatRepository {
         receiverName: receiverData.name,
         messageType: MessageEnum.text,
       );
-      _saveDataToContactSubDatabase(senderData, receiverData, message, timeSent);
+      _saveDataToContactSubDatabase(
+        senderData,
+        receiverData,
+        message,
+        timeSent,
+      );
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
@@ -48,35 +52,47 @@ class ChatRepository {
     String text,
     DateTime time,
   ) async {
-    // var receiverChatContact = ChatContactModel(
-    //   name: senderData.name,
-    //   profilePic: senderData.profilePic,
-    //   contactId: senderData.uid,
-    //   timeSent: time,
-    //   lastMessage: text,
-    // );
+    var response =
+        await supabase
+            .from('messages')
+            .select('messageId')
+            .or("""
+              and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),
+              and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})
+            """)
+            .order('timeSent', ascending: false)
+            .limit(1)
+            .maybeSingle();
 
-    await supabase.from('chats').upsert({
-      'receiver_id': receiverData.uid,
-      'sender_id': supabase.auth.currentUser!.id,
-      'last_message': text,
-      'timestamp': time,
-      //...receiverChatContact.toJson(),
-    });
+    final existingChat =
+        await supabase.from('chats').select().or("""
+        and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),
+            and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})
+            """).maybeSingle();
 
-    // var senderChatContact = ChatContactModel(
-    //   name: receiverData.name,
-    //   profilePic: receiverData.profilePic,
-    //   contactId: receiverData.uid,
-    //   timeSent: time,
-    //   lastMessage: text,
-    // );
-    //
-    // await supabase.from('chats').upsert({
-    //   'receiver_id': supabase.auth.currentUser!.id,
-    //   'sender_id': receiverData.uid,
-    //   ...senderChatContact.toJson(),
-    // });
+    if (existingChat != null) {
+      await supabase
+          .from('chats')
+          .update({
+            'messageId': response?['messageId'],
+            'receiverId': receiverData.uid,
+            'senderId': senderData.uid,
+            'last_message': text,
+            'timeSent': time,
+          })
+          .or("""
+          and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),
+          and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})
+          """);
+    } else {
+      await supabase.from('chats').upsert({
+        'messageId': response?['messageId'],
+        'receiverId': receiverData.uid,
+        'senderId': senderData.uid,
+        'last_message': text,
+        'timeSent': time,
+      });
+    }
   }
 
   void _saveMessageToMessageSubDatabase({
@@ -106,6 +122,5 @@ class ChatRepository {
       'timeSent': message.timeSent,
       'isSeen': message.isSeen,
     });
-
   }
 }
