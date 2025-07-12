@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
-import 'package:whats_app_clone/widgets/chat_list.dart';
+import 'package:whats_app_clone/features/chat/widgets/chat_list.dart';
 import 'package:whats_app_clone/widgets/tablet_profile_bar.dart';
-import 'package:whats_app_clone/widgets/contacts_list.dart';
+import 'package:whats_app_clone/features/chat/widgets/contacts_list.dart';
 import 'package:whats_app_clone/widgets/tablet_search_bar.dart';
 
 import '../../common/utils/colors.dart';

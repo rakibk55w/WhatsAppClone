@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
 import 'package:whats_app_clone/features/authentication/controller/authentication_controller.dart';
 import 'package:whats_app_clone/features/select_contacts/screens/select_contacts_screen.dart';
-import 'package:whats_app_clone/widgets/contacts_list.dart';
+import 'package:whats_app_clone/features/chat/widgets/contacts_list.dart';
 
 class MobileScreenLayout extends ConsumerWidget {
   const MobileScreenLayout({super.key});

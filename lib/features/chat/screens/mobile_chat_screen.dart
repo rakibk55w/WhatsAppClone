@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
-import 'package:whats_app_clone/widgets/chat_list.dart';
+import 'package:whats_app_clone/features/chat/widgets/chat_list.dart';
 
 import '../../authentication/controller/authentication_controller.dart';
 import '../widgets/bottom_chat_field.dart';
@@ -24,9 +24,9 @@ class MobileChatScreen extends ConsumerWidget {
             if (asyncSnapshot.connectionState == ConnectionState.waiting) {
               return Text(name);
             }
-            if (asyncSnapshot.hasError) {
-              return SizedBox.shrink();
-            }
+            // if (asyncSnapshot.hasError) {
+            //   return SizedBox.shrink();
+            // }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,

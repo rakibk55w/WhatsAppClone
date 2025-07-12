@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
-import 'package:whats_app_clone/models/message_model.dart';
+import 'package:whats_app_clone/models/chat_contact_model.dart';
 
 import '../../../common/enums/message_enum.dart';
 import '../../../models/user_model.dart';
 
-final chatRepositoryProvider = Provider((ref) => ChatRepository(supabase: Supabase.instance.client));
+final chatRepositoryProvider = Provider(
+  (ref) => ChatRepository(supabase: Supabase.instance.client),
+);
 
 class ChatRepository {
   ChatRepository({required this.supabase});
@@ -59,13 +61,17 @@ class ChatRepository {
         await supabase
             .from('messages')
             .select('messageId')
-            .or("""and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""")
+            .or(
+              """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
+            )
             .order('timeSent', ascending: false)
             .limit(1)
             .maybeSingle();
 
     final existingChat =
-        await supabase.from('chats').select().or("""and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""").maybeSingle();
+        await supabase.from('chats').select().or(
+          """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
+        ).maybeSingle();
 
     if (existingChat != null) {
       await supabase
@@ -77,7 +83,9 @@ class ChatRepository {
             'last_message': text,
             'timeSent': time,
           })
-          .or("""and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""");
+          .or(
+            """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
+          );
     } else {
       await supabase.from('chats').upsert({
         'messageId': response?['messageId'],
@@ -98,16 +106,6 @@ class ChatRepository {
     required String receiverName,
     required MessageEnum messageType,
   }) async {
-    // final message = MessageModel(
-    //   senderId: supabase.auth.currentUser!.id,
-    //   receiverId: receiverId,
-    //   message: text,
-    //   messageType: messageType,
-    //   timeSent: timeSent,
-    //   messageId: messageId,
-    //   isSeen: false,
-    // );
-
     await supabase.from('messages').insert({
       'messageId': messageId,
       'senderId': supabase.auth.currentUser!.id,
@@ -116,5 +114,45 @@ class ChatRepository {
       'timeSent': timeSent,
       'isSeen': false,
     });
+  }
+
+  Stream<List<ChatContactModel>> getChatContacts() {
+    final currentUserId = supabase.auth.currentUser!.id;
+    return supabase
+        .from('chats')
+        .stream(primaryKey: ['receiverId', 'senderId'])
+        .order('timeSent', ascending: false)
+        .asyncMap((rows) async {
+          List<ChatContactModel> contacts = [];
+          for (var row in rows) {
+            if (row['senderId'] != currentUserId &&
+                row['receiverId'] != currentUserId) {
+              continue;
+            }
+
+            final contactId =
+                row['senderId'] == currentUserId
+                    ? row['receiverId']
+                    : row['senderId'];
+
+            final contactData =
+                await supabase
+                    .from('users')
+                    .select('name, profilePic')
+                    .eq('uid', contactId)
+                    .single();
+
+            contacts.add(
+              ChatContactModel(
+                name: contactData['name'],
+                profilePic: contactData['profilePic'],
+                contactId: contactId,
+                timeSent: DateTime.parse(row['timeSent']),
+                lastMessage: row['last_message'],
+              ),
+            );
+          }
+          return contacts;
+        });
   }
 }

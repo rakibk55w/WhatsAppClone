@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/features/authentication/controller/authentication_controller.dart';
 import 'package:whats_app_clone/features/chat/repositories/chat_repository.dart';
 
+import '../../../models/chat_contact_model.dart';
+
 final chatControllerProvider = Provider(
   (ref) => ChatController(
     chatRepository: ref.watch(chatRepositoryProvider),
@@ -27,5 +29,9 @@ class ChatController {
             senderData: value!,
           ),
         );
+  }
+
+  Stream<List<ChatContactModel>> getChatContacts() {
+    return chatRepository.getChatContacts();
   }
 }
