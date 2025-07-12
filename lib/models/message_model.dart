@@ -37,7 +37,7 @@ class MessageModel {
       'receiverId': receiverId,
       'text': message,
       'messageType': messageType.type,
-      'timeSent': timeSent,
+      'timeSent': timeSent.toIso8601String(),
       'messageId': messageId,
       'isSeen': isSeen,
     };

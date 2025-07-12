@@ -28,7 +28,7 @@ class ChatContactModel {
       'name': name,
       'profilePic': profilePic,
       'contactId': contactId,
-      'timeSent': timeSent,
+      'timeSent': timeSent.toIso8601String(),
       'lastMessage': lastMessage,
     };
   }

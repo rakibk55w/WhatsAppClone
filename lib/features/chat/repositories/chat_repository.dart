@@ -32,7 +32,7 @@ class ChatRepository {
       _saveMessageToMessageSubDatabase(
         receiverId: receiverId,
         text: message,
-        timeSent: timeSent,
+        timeSent: timeSent.toIso8601String(),
         messageId: messageId,
         senderName: senderData.name,
         receiverName: receiverData.name,
@@ -42,7 +42,7 @@ class ChatRepository {
         senderData,
         receiverData,
         message,
-        timeSent,
+        timeSent.toIso8601String(),
       );
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
@@ -53,25 +53,19 @@ class ChatRepository {
     UserModel senderData,
     UserModel receiverData,
     String text,
-    DateTime time,
+    String time,
   ) async {
     var response =
         await supabase
             .from('messages')
             .select('messageId')
-            .or("""
-              and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),
-              and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})
-            """)
+            .or("""and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""")
             .order('timeSent', ascending: false)
             .limit(1)
             .maybeSingle();
 
     final existingChat =
-        await supabase.from('chats').select().or("""
-        and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),
-            and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})
-            """).maybeSingle();
+        await supabase.from('chats').select().or("""and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""").maybeSingle();
 
     if (existingChat != null) {
       await supabase
@@ -83,10 +77,7 @@ class ChatRepository {
             'last_message': text,
             'timeSent': time,
           })
-          .or("""
-          and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),
-          and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})
-          """);
+          .or("""and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""");
     } else {
       await supabase.from('chats').upsert({
         'messageId': response?['messageId'],
@@ -101,29 +92,29 @@ class ChatRepository {
   void _saveMessageToMessageSubDatabase({
     required String receiverId,
     required String text,
-    required DateTime timeSent,
+    required String timeSent,
     required String messageId,
     required String senderName,
     required String receiverName,
     required MessageEnum messageType,
   }) async {
-    final message = MessageModel(
-      senderId: supabase.auth.currentUser!.id,
-      receiverId: receiverId,
-      message: text,
-      messageType: messageType,
-      timeSent: timeSent,
-      messageId: messageId,
-      isSeen: false,
-    );
+    // final message = MessageModel(
+    //   senderId: supabase.auth.currentUser!.id,
+    //   receiverId: receiverId,
+    //   message: text,
+    //   messageType: messageType,
+    //   timeSent: timeSent,
+    //   messageId: messageId,
+    //   isSeen: false,
+    // );
 
     await supabase.from('messages').insert({
-      'messageId': message.messageId,
-      'senderId': message.senderId,
-      'receiverId': message.receiverId,
-      'message': message.message,
-      'timeSent': message.timeSent,
-      'isSeen': message.isSeen,
+      'messageId': messageId,
+      'senderId': supabase.auth.currentUser!.id,
+      'receiverId': receiverId,
+      'message': text,
+      'timeSent': timeSent,
+      'isSeen': false,
     });
   }
 }
