@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:whats_app_clone/common/widgets/loader.dart';
 import 'package:whats_app_clone/features/chat/controller/chat_controller.dart';
-import 'package:whats_app_clone/info.dart';
 import 'package:whats_app_clone/features/chat/screens/mobile_chat_screen.dart';
 import 'package:whats_app_clone/models/chat_contact_model.dart';
 

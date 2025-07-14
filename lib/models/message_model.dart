@@ -24,7 +24,7 @@ class MessageModel {
       senderId: json['senderId'] ?? '',
       receiverId: json['receiverId'] ?? '',
       message: json['message'] ?? '',
-      messageType: (json['messageType'] as String).toEnum(),
+      messageType: (json['messageType'] as String).toEnum() ?? MessageEnum.text,
       timeSent: json['timeSent'] ?? '',
       messageId: json['messageId'] ?? '',
       isSeen: json['isSeen'] ?? false,

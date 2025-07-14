@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/models/chat_contact_model.dart';
+import 'package:whats_app_clone/models/message_model.dart';
 
 import '../../../common/enums/message_enum.dart';
 import '../../../models/user_model.dart';
@@ -153,6 +154,41 @@ class ChatRepository {
             );
           }
           return contacts;
+        });
+  }
+
+  Stream<List<MessageModel>> getChatMessages(String receiverId) {
+    final currentUserId = supabase.auth.currentUser!.id;
+    return supabase
+        .from('messages')
+        .stream(primaryKey: ['messageId'])
+        .order('timeSent', ascending: true)
+        .asyncMap((rows) async {
+          List<MessageModel> filteredMessages = [];
+
+          for (var row in rows) {
+            final isBetweenTwoUsers =
+                (row['senderId'] == currentUserId &&
+                    row['receiverId'] == receiverId) ||
+                (row['senderId'] == receiverId &&
+                    row['receiverId'] == currentUserId);
+
+            if (isBetweenTwoUsers) {
+              filteredMessages.add(
+                MessageModel(
+                  senderId: row['senderId'],
+                  receiverId: row['receiverId'],
+                  message: row['message'],
+                  messageType: MessageEnum.text,
+                  timeSent: DateTime.parse(row['timeSent']),
+                  messageId: row['messageId'],
+                  isSeen: row['isSeen'],
+                ),
+              );
+            }
+          }
+
+          return filteredMessages;
         });
   }
 }
