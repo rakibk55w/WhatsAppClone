@@ -152,4 +152,11 @@ class AuthenticationRepository {
         .eq('uid', userId)
         .map((event) => UserModel.fromJson(event.first));
   }
+
+  Future<void> setUserState(bool isOnline) async {
+    await supabase
+        .from('users')
+        .update({'isOnline': isOnline})
+        .eq('uid', supabase.auth.currentUser!.id);
+  }
 }

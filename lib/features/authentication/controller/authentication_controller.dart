@@ -53,4 +53,8 @@ class AuthenticationController {
   Stream<UserModel> userData(String userId) {
     return authRepo.userData(userId);
   }
+
+  Future<void> setUserState(bool isOnline) async {
+    await authRepo.setUserState(isOnline);
+  }
 }

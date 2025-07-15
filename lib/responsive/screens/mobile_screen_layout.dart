@@ -5,11 +5,51 @@ import 'package:whats_app_clone/features/authentication/controller/authenticatio
 import 'package:whats_app_clone/features/select_contacts/screens/select_contacts_screen.dart';
 import 'package:whats_app_clone/features/chat/widgets/contacts_list.dart';
 
-class MobileScreenLayout extends ConsumerWidget {
+class MobileScreenLayout extends ConsumerStatefulWidget {
   const MobileScreenLayout({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MobileScreenLayout> createState() => _MobileScreenLayoutState();
+}
+
+class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout> with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch(state) {
+      case AppLifecycleState.resumed:
+        ref.read(authenticationControllerProvider).setUserState(true);
+        break;
+      case AppLifecycleState.inactive:
+        ref.read(authenticationControllerProvider).setUserState(false);
+        break;
+      case AppLifecycleState.detached:
+        ref.read(authenticationControllerProvider).setUserState(false);
+        break;
+      case AppLifecycleState.paused:
+        ref.read(authenticationControllerProvider).setUserState(false);
+        break;
+      case AppLifecycleState.hidden:
+        ref.read(authenticationControllerProvider).setUserState(false);
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -31,7 +71,9 @@ class MobileScreenLayout extends ConsumerWidget {
               icon: const Icon(Icons.search, color: AppColors.greyColor),
             ),
             IconButton(
-              onPressed: () { ref.read(authenticationControllerProvider).logout(context);},
+              onPressed: () {
+                ref.read(authenticationControllerProvider).logout(context);
+              },
               icon: const Icon(Icons.more_vert, color: AppColors.greyColor),
             ),
           ],
@@ -48,7 +90,9 @@ class MobileScreenLayout extends ConsumerWidget {
         body: const ContactsList(),
         floatingActionButton: FloatingActionButton(
           shape: CircleBorder(),
-          onPressed: () => Navigator.pushNamed(context, SelectContactsScreen.routeName),
+          onPressed:
+              () =>
+                  Navigator.pushNamed(context, SelectContactsScreen.routeName),
           backgroundColor: AppColors.tabColor,
           child: const Icon(Icons.comment, color: Colors.white),
         ),
