@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:whats_app_clone/common/repositories/supabase_storage_repository.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/models/chat_contact_model.dart';
 import 'package:whats_app_clone/models/message_model.dart';
@@ -96,6 +99,8 @@ class ChatRepository {
         'timeSent': time,
       });
     }
+
+    /// TODO add messageType in the chats database
   }
 
   void _saveMessageToMessageSubDatabase({
@@ -114,6 +119,7 @@ class ChatRepository {
       'message': text,
       'timeSent': timeSent,
       'isSeen': false,
+      'messageType': messageType.type,
     });
   }
 
@@ -174,21 +180,75 @@ class ChatRepository {
                     row['receiverId'] == currentUserId);
 
             if (isBetweenTwoUsers) {
-              filteredMessages.add(
-                MessageModel(
-                  senderId: row['senderId'],
-                  receiverId: row['receiverId'],
-                  message: row['message'],
-                  messageType: MessageEnum.text,
-                  timeSent: DateTime.parse(row['timeSent']),
-                  messageId: row['messageId'],
-                  isSeen: row['isSeen'],
-                ),
-              );
+              filteredMessages.add(MessageModel.fromJson(row));
             }
           }
 
           return filteredMessages;
         });
+  }
+
+  Future<void> sendFileMessage({
+    required BuildContext context,
+    required File file,
+    required String receiverId,
+    required UserModel senderData,
+    required Ref ref,
+    required MessageEnum messageEnum,
+  }) async {
+    try {
+      var timeSent = DateTime.now();
+      var messageId = const Uuid().v1();
+
+      var userData =
+          await supabase.from('users').select().eq('uid', receiverId).single();
+      UserModel receiverData = UserModel.fromJson(userData);
+
+      String fileUrl = await ref
+          .read(commonSupabaseStorageRepositoryProvider)
+          .storeFileToSupabase(
+            bucket: 'media',
+            path:
+                '${messageEnum.type}/${senderData.uid}/$receiverId/$messageId',
+            file: file,
+          );
+
+      String contactMsg;
+      switch (messageEnum) {
+        case MessageEnum.image:
+          contactMsg = '📷 Photo';
+          break;
+        case MessageEnum.video:
+          contactMsg = '🎥 Video';
+          break;
+        case MessageEnum.audio:
+          contactMsg = '🎵 Audio';
+          break;
+        case MessageEnum.gif:
+          contactMsg = 'GIF';
+        case MessageEnum.text:
+          contactMsg = 'Text';
+          break;
+      }
+
+      _saveDataToContactSubDatabase(
+        senderData,
+        receiverData,
+        contactMsg,
+        timeSent.toIso8601String(),
+      );
+
+      _saveMessageToMessageSubDatabase(
+        receiverId: receiverId,
+        text: fileUrl,
+        timeSent: timeSent.toIso8601String(),
+        messageId: messageId,
+        senderName: senderData.name,
+        receiverName: receiverData.name,
+        messageType: messageEnum,
+      );
+    } catch (e) {
+      AppDeviceUtils.showSnackBar(context: context, content: e.toString());
+    }
   }
 }

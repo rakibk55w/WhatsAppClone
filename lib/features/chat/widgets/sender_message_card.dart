@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../common/utils/colors.dart';
-import '../common/utils/device_utility.dart';
+import '../../../common/utils/colors.dart';
+import '../../../common/utils/device_utility.dart';
 
 class SenderMessageCard extends StatelessWidget {
   const SenderMessageCard({super.key, required this.message, required this.date});

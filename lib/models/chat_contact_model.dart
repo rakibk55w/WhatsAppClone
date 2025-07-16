@@ -18,7 +18,7 @@ class ChatContactModel {
       name: json['name'] ?? '',
       profilePic: json['profilePic'] ?? '',
       contactId: json['contactId'] ?? '',
-      timeSent: json['timeSent'] ?? '',
+      timeSent: DateTime.parse(json['timeSent']),
       lastMessage: json['lastMessage'] ?? '',
     );
   }

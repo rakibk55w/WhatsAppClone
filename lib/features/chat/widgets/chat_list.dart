@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:whats_app_clone/common/widgets/loader.dart';
 import 'package:whats_app_clone/features/chat/controller/chat_controller.dart';
 import 'package:whats_app_clone/models/message_model.dart';
-import 'package:whats_app_clone/widgets/my_message_card.dart';
-import 'package:whats_app_clone/widgets/sender_message_card.dart';
+import 'package:whats_app_clone/features/chat/widgets/my_message_card.dart';
+import 'package:whats_app_clone/features/chat/widgets/sender_message_card.dart';
 
 class ChatList extends ConsumerStatefulWidget {
   const ChatList({super.key, required this.receiverId,});

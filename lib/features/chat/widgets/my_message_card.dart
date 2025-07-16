@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 
-import '../common/utils/colors.dart';
+import '../../../common/utils/colors.dart';
 
 class MyMessageCard extends StatelessWidget {
   const MyMessageCard({super.key, required this.message, required this.date});

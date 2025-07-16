@@ -94,7 +94,7 @@ class AppDeviceUtils {
     );
   }
 
-  Future<File?> pickImageFromGallery(BuildContext context) async {
+  static Future<File?> pickImageFromGallery(BuildContext context) async {
     File? image;
     try {
       final pickedImage =
@@ -111,7 +111,7 @@ class AppDeviceUtils {
     return image;
   }
 
-  Future<File?> pickVideoFromGallery(BuildContext context) async {
+  static Future<File?> pickVideoFromGallery(BuildContext context) async {
     File? video;
     try {
       final pickedVideo =
@@ -127,7 +127,7 @@ class AppDeviceUtils {
     return video;
   }
 
-  Future<GiphyGif?> pickGIF(BuildContext context) async {
+  static Future<GiphyGif?> pickGIF(BuildContext context) async {
     try {
       final gif = await GiphyGet.getGif(
         context: context,
