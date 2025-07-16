@@ -99,8 +99,6 @@ class ChatRepository {
         'timeSent': time,
       });
     }
-
-    /// TODO add messageType in the chats database
   }
 
   void _saveMessageToMessageSubDatabase({

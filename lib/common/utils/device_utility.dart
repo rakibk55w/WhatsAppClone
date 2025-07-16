@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 //import 'package:connectivity_plus/connectivity_plus.dart';
 
 class AppDeviceUtils {
-
   static double getScreenHeight(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }
@@ -86,27 +85,27 @@ class AppDeviceUtils {
   //   );
   // }
 
-  static void showSnackBar({required BuildContext context, required String content}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(content),
-      ),
-    );
+  static void showSnackBar({
+    required BuildContext context,
+    required String content,
+  }) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(content)));
   }
 
   static Future<File?> pickImageFromGallery(BuildContext context) async {
     File? image;
     try {
-      final pickedImage =
-      await ImagePicker().pickImage(source: ImageSource.gallery);
+      final pickedImage = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+      );
 
       if (pickedImage != null) {
         image = File(pickedImage.path);
       }
     } catch (e) {
-      if (context.mounted) {
-        showSnackBar(context: context, content: e.toString());
-      }
+      showSnackBar(context: context, content: e.toString());
     }
     return image;
   }
@@ -114,16 +113,16 @@ class AppDeviceUtils {
   static Future<File?> pickVideoFromGallery(BuildContext context) async {
     File? video;
     try {
-      final pickedVideo =
-      await ImagePicker().pickVideo(source: ImageSource.gallery);
+      final pickedVideo = await ImagePicker().pickVideo(
+        source: ImageSource.gallery,
+      );
 
       if (pickedVideo != null) {
         video = File(pickedVideo.path);
       }
     } catch (e) {
-      if (context.mounted) {
-        showSnackBar(context: context, content: e.toString());
-      }    }
+      showSnackBar(context: context, content: e.toString());
+    }
     return video;
   }
 
@@ -140,9 +139,7 @@ class AppDeviceUtils {
       );
       return gif;
     } catch (e) {
-      if (context.mounted) {
-        showSnackBar(context: context, content: e.toString());
-      }
+      showSnackBar(context: context, content: e.toString());
       return null;
     }
   }

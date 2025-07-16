@@ -104,7 +104,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                       icon: const Icon(Icons.attach_file, color: Colors.grey),
                     ),
                     IconButton(
-                      onPressed: () => selectImage,
+                      onPressed: selectImage,
                       icon: const Icon(Icons.camera_alt, color: Colors.grey),
                     ),
                   ],

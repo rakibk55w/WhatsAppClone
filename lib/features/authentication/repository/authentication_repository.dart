@@ -119,7 +119,7 @@ class AuthenticationRepository {
             .read(commonSupabaseStorageRepositoryProvider)
             .storeFileToSupabase(
               bucket: 'profile-pic',
-              path: '$uid/profile.jpg',
+              path: '$uid/profile',
               file: profilePic,
             );
       }
