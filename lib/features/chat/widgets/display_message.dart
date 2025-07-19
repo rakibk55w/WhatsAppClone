@@ -13,6 +13,6 @@ class DisplayMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return type == MessageEnum.text
         ? Text(message, style: const TextStyle(fontSize: 16))
-        : CachedNetworkImage(imageUrl: message, height: 200, width: 200, fit: BoxFit.cover,);
+        : CachedNetworkImage(imageUrl: message, height: 180, fit: BoxFit.contain,);
   }
 }
