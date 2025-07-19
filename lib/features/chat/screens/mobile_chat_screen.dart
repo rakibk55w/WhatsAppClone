@@ -24,9 +24,13 @@ class MobileChatScreen extends ConsumerWidget {
             if (asyncSnapshot.connectionState == ConnectionState.waiting) {
               return Text(name);
             }
-            // if (asyncSnapshot.hasError) {
-            //   return SizedBox.shrink();
-            // }
+            if (asyncSnapshot.hasError) {
+              return Center(child: Text('Error: ${asyncSnapshot.error}'));
+            }
+
+            if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
+              return const Center(child: Text('No data found'));
+            }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,

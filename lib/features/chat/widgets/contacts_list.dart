@@ -21,6 +21,13 @@ class ContactsList extends ConsumerWidget {
           if (asyncSnapshot.connectionState == ConnectionState.waiting) {
             return const Loader();
           }
+          if (asyncSnapshot.hasError) {
+            return Center(child: Text('Error: ${asyncSnapshot.error}'));
+          }
+
+          if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
+            return const Center(child: Text('No data found'));
+          }
           return ListView.builder(
             physics: BouncingScrollPhysics(),
             shrinkWrap: true,

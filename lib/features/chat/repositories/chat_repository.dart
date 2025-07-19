@@ -55,7 +55,7 @@ class ChatRepository {
     }
   }
 
-  void _saveDataToContactSubDatabase(
+  Future<void> _saveDataToContactSubDatabase(
     UserModel senderData,
     UserModel receiverData,
     String text,
@@ -64,13 +64,13 @@ class ChatRepository {
     var response =
         await supabase
             .from('messages')
-            .select('messageId')
+            .select('messageId,messageType')
             .or(
               """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
             )
             .order('timeSent', ascending: false)
             .limit(1)
-            .maybeSingle();
+            .single();
 
     final existingChat =
         await supabase.from('chats').select().or(
@@ -81,27 +81,29 @@ class ChatRepository {
       await supabase
           .from('chats')
           .update({
-            'messageId': response?['messageId'],
+            'messageId': response['messageId'],
             'receiverId': receiverData.uid,
             'senderId': senderData.uid,
             'last_message': text,
             'timeSent': time,
+            'messageType': response['messageType']
           })
           .or(
             """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
           );
     } else {
       await supabase.from('chats').upsert({
-        'messageId': response?['messageId'],
+        'messageId': response['messageId'],
         'receiverId': receiverData.uid,
         'senderId': senderData.uid,
         'last_message': text,
         'timeSent': time,
+        'messageType': response['messageType']
       });
     }
   }
 
-  void _saveMessageToMessageSubDatabase({
+  Future<void> _saveMessageToMessageSubDatabase({
     required String receiverId,
     required String text,
     required String timeSent,
@@ -229,13 +231,6 @@ class ChatRepository {
           break;
       }
 
-      _saveDataToContactSubDatabase(
-        senderData,
-        receiverData,
-        contactMsg,
-        timeSent.toIso8601String(),
-      );
-
       _saveMessageToMessageSubDatabase(
         receiverId: receiverId,
         text: fileUrl,
@@ -245,6 +240,14 @@ class ChatRepository {
         receiverName: receiverData.name,
         messageType: messageEnum,
       );
+
+      _saveDataToContactSubDatabase(
+        senderData,
+        receiverData,
+        contactMsg,
+        timeSent.toIso8601String(),
+      );
+
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }

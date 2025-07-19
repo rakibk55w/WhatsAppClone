@@ -37,6 +37,14 @@ class _ChatListState extends ConsumerState<ChatList> {
             return const Loader();
           }
 
+          if (asyncSnapshot.hasError) {
+            return Center(child: Text('Error: ${asyncSnapshot.error}'));
+          }
+
+          if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
+            return const Center(child: Text('No data found'));
+          }
+
           SchedulerBinding.instance.addPostFrameCallback((_) => messageController.jumpTo(messageController.position.maxScrollExtent));
           return ListView.builder(
             controller: messageController,
@@ -46,11 +54,13 @@ class _ChatListState extends ConsumerState<ChatList> {
                 return MyMessageCard(
                   message: asyncSnapshot.data![index].message,
                   date: DateFormat.jm().format(asyncSnapshot.data![index].timeSent).toString(),
+                  type: asyncSnapshot.data![index].messageType,
                 );
               }
               return SenderMessageCard(
                 message: asyncSnapshot.data![index].message,
                 date: DateFormat.jm().format(asyncSnapshot.data![index].timeSent).toString(),
+                type: asyncSnapshot.data![index].messageType,
               );
             },
           );
