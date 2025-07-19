@@ -21,13 +21,13 @@ class CommonSupabaseStorageRepository {
     final fileBytes = await file.readAsBytes();
     final mimeType = lookupMimeType(file.path, headerBytes: fileBytes);
 
-    if (mimeType == null || !mimeType.startsWith('image/')) {
-      throw Exception('Invalid file type. Only image files are allowed.');
+    if (mimeType == null) {
+      throw Exception('Invalid file type.');
     }
 
     final extension = extensionFromMime(mimeType);
     if (extension == null) {
-      throw Exception('Unsupported image type.');
+      throw Exception('Unsupported file type.');
     }
     final pathWithExtension = '$path.$extension';
 
@@ -54,6 +54,13 @@ class CommonSupabaseStorageRepository {
       'image/png': 'png',
       'image/webp': 'webp',
       'image/gif': 'gif',
+      'video/mp4': 'mp4',
+      'video/webm': 'webm',
+      'video/ogg': 'ogg',
+      'video/quicktime': 'mov',
+      'video/x-matroska': 'mkv',
+      'video/x-msvideo': 'avi',
+      'video/x-flv': 'flv'
     };
     return map[mime];
   }
