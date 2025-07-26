@@ -252,4 +252,38 @@ class ChatRepository {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
   }
+
+  Future<void> sendGIFMessage({
+    required String gifUrl,
+    required String receiverId,
+    required BuildContext context,
+    required UserModel senderData,
+  }) async {
+    try {
+      var timeSent = DateTime.now();
+
+      var userData =
+      await supabase.from('users').select().eq('uid', receiverId).single();
+      UserModel receiverData = UserModel.fromJson(userData);
+      var messageId = const Uuid().v1();
+
+      _saveMessageToMessageSubDatabase(
+        receiverId: receiverId,
+        text: gifUrl,
+        timeSent: timeSent.toIso8601String(),
+        messageId: messageId,
+        senderName: senderData.name,
+        receiverName: receiverData.name,
+        messageType: MessageEnum.gif,
+      );
+      _saveDataToContactSubDatabase(
+        senderData,
+        receiverData,
+        'GIF',
+        timeSent.toIso8601String(),
+      );
+    } catch (e) {
+      AppDeviceUtils.showSnackBar(context: context, content: e.toString());
+    }
+  }
 }

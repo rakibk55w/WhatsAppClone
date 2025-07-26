@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:giphy_get/giphy_get.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../env/env.dart';
 //import 'package:connectivity_plus/connectivity_plus.dart';
 
 class AppDeviceUtils {
@@ -130,7 +132,7 @@ class AppDeviceUtils {
     try {
       final gif = await GiphyGet.getGif(
         context: context,
-        apiKey: 'API_KEY',
+        apiKey: Env.giphyKey,
         lang: GiphyLanguage.english,
         modal: true,
         showGIFs: true,

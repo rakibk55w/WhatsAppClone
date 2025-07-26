@@ -18,8 +18,7 @@ class DisplayMessage extends StatelessWidget {
       // TODO: Handle this case.
       MessageEnum.audio => throw UnimplementedError(),
       MessageEnum.video => VideoPlayerItem(videoUrl: message),
-      // TODO: Handle this case.
-      MessageEnum.gif => throw UnimplementedError(),
+      MessageEnum.gif => CachedNetworkImage(imageUrl: message),
     };
   }
 }

@@ -13,25 +13,24 @@ class VideoPlayerItem extends StatefulWidget {
 }
 
 class _VideoPlayerItemState extends State<VideoPlayerItem> {
-  late CachedVideoPlayerPlus player;
+  late final CachedVideoPlayerPlus player;
   bool isPlaying = false;
 
   @override
   void initState() {
-    player = CachedVideoPlayerPlus.networkUrl(
-        Uri.parse(widget.videoUrl),
-        invalidateCacheIfOlderThan: const Duration(days: 1),
-      )
-      ..initialize().then((onValue) {
-        player.controller.setVolume(0.5);
-        setState(() {});
-      });
     super.initState();
+    player = CachedVideoPlayerPlus.networkUrl(
+      Uri.parse(widget.videoUrl),
+    );
+    player.initialize().then((onValue) {
+      setState(() {});
+      player.controller.setVolume(1.0);
+    });
   }
 
   @override
   void dispose() {
-    player.dispose();
+    //player.dispose();
     super.dispose();
   }
 
