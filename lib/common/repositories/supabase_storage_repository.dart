@@ -60,7 +60,8 @@ class CommonSupabaseStorageRepository {
       'video/quicktime': 'mov',
       'video/x-matroska': 'mkv',
       'video/x-msvideo': 'avi',
-      'video/x-flv': 'flv'
+      'video/x-flv': 'flv',
+      'audio/aac': 'aac'
     };
     return map[mime];
   }
