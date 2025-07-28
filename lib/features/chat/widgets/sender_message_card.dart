@@ -11,11 +11,19 @@ class SenderMessageCard extends StatelessWidget {
     required this.message,
     required this.date,
     required this.type,
+    required this.onSwipe,
+    required this.repliedText,
+    required this.username,
+    required this.repliedType,
   });
 
   final String message;
   final String date;
   final MessageEnum type;
+  final VoidCallback onSwipe;
+  final String repliedText;
+  final String username;
+  final MessageEnum repliedType;
 
   @override
   Widget build(BuildContext context) {

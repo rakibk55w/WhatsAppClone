@@ -7,6 +7,7 @@ import 'package:whats_app_clone/features/chat/repositories/chat_repository.dart'
 import 'package:whats_app_clone/models/message_model.dart';
 
 import '../../../common/enums/message_enum.dart';
+import '../../../common/providers/message_reply_provider.dart';
 import '../../../models/chat_contact_model.dart';
 
 final chatControllerProvider = Provider(
@@ -23,6 +24,7 @@ class ChatController {
   final Ref ref;
 
   void sendTextMessage(BuildContext context, String text, String receiverId) {
+    final messageReply = ref.read(messageReplyProvider);
     ref
         .read(userDataAuthProvider)
         .whenData(
@@ -31,6 +33,7 @@ class ChatController {
             receiverId: receiverId,
             context: context,
             senderData: value!,
+            messageReply: messageReply,
           ),
         );
   }
@@ -41,6 +44,8 @@ class ChatController {
     String receiverId,
     MessageEnum messageEnum,
   ) {
+    final messageReply = ref.read(messageReplyProvider);
+
     ref
         .read(userDataAuthProvider)
         .whenData(
@@ -51,6 +56,7 @@ class ChatController {
             receiverId: receiverId,
             context: context,
             senderData: value!,
+            messageReply: messageReply,
           ),
         );
   }
@@ -59,16 +65,19 @@ class ChatController {
     int gifUrlIndex = url.lastIndexOf('-') + 1;
     String gifUrlPart = url.substring(gifUrlIndex);
     String newGifUrl = 'https://i.giphy.com/media/$gifUrlPart/200.gif';
+    final messageReply = ref.read(messageReplyProvider);
+
     ref
         .read(userDataAuthProvider)
         .whenData(
           (value) => chatRepository.sendGIFMessage(
-        gifUrl: newGifUrl,
-        receiverId: receiverId,
-        context: context,
-        senderData: value!,
-      ),
-    );
+            gifUrl: newGifUrl,
+            receiverId: receiverId,
+            context: context,
+            senderData: value!,
+            messageReply: messageReply,
+          ),
+        );
   }
 
   Stream<List<ChatContactModel>> getChatContacts() {

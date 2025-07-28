@@ -11,7 +11,7 @@ import 'package:whats_app_clone/features/chat/widgets/my_message_card.dart';
 import 'package:whats_app_clone/features/chat/widgets/sender_message_card.dart';
 
 class ChatList extends ConsumerStatefulWidget {
-  const ChatList({super.key, required this.receiverId,});
+  const ChatList({super.key, required this.receiverId});
 
   final String receiverId;
 
@@ -31,40 +31,57 @@ class _ChatListState extends ConsumerState<ChatList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<MessageModel>>(
-        stream: ref.watch(chatControllerProvider).getChatMessages(widget.receiverId),
-        builder: (context, asyncSnapshot) {
-          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            return const Loader();
-          }
-
-          if (asyncSnapshot.hasError) {
-            return Center(child: Text('Error: ${asyncSnapshot.error}'));
-          }
-
-          if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
-            return const Center(child: Text('No data found'));
-          }
-
-          SchedulerBinding.instance.addPostFrameCallback((_) => messageController.jumpTo(messageController.position.maxScrollExtent));
-          return ListView.builder(
-            controller: messageController,
-            itemCount: asyncSnapshot.data!.length,
-            itemBuilder: (context, index) {
-              if (asyncSnapshot.data![index].senderId != widget.receiverId) {
-                return MyMessageCard(
-                  message: asyncSnapshot.data![index].message,
-                  date: DateFormat.jm().format(asyncSnapshot.data![index].timeSent).toString(),
-                  type: asyncSnapshot.data![index].messageType,
-                );
-              }
-              return SenderMessageCard(
-                message: asyncSnapshot.data![index].message,
-                date: DateFormat.jm().format(asyncSnapshot.data![index].timeSent).toString(),
-                type: asyncSnapshot.data![index].messageType,
-              );
-            },
-          );
+      stream: ref
+          .watch(chatControllerProvider)
+          .getChatMessages(widget.receiverId),
+      builder: (context, asyncSnapshot) {
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+          return const Loader();
         }
+
+        if (asyncSnapshot.hasError) {
+          return Center(child: Text('Error: ${asyncSnapshot.error}'));
+        }
+
+        if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
+          return const Center(child: Text('No data found'));
+        }
+
+        SchedulerBinding.instance.addPostFrameCallback(
+          (_) => messageController.jumpTo(
+            messageController.position.maxScrollExtent,
+          ),
+        );
+        return ListView.builder(
+          controller: messageController,
+          itemCount: asyncSnapshot.data!.length,
+          itemBuilder: (context, index) {
+            var messageData = asyncSnapshot.data![index];
+            if (messageData.senderId != widget.receiverId) {
+              return MyMessageCard(
+                message: messageData.message,
+                date:
+                    DateFormat.jm()
+                        .format(messageData.timeSent)
+                        .toString(),
+                type: messageData.messageType,
+                repliedText: messageData.repliedMessage,
+                username: messageData.repliedTo,
+                repliedType: messageData.repliedMessageType,
+                onSwipe: () {},
+              );
+            }
+            return SenderMessageCard(
+              message: messageData.message,
+              date:
+                  DateFormat.jm()
+                      .format(messageData.timeSent)
+                      .toString(),
+              type: messageData.messageType,
+            );
+          },
+        );
+      },
     );
   }
 }

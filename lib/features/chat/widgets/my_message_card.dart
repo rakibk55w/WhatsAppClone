@@ -6,11 +6,24 @@ import 'package:whats_app_clone/features/chat/widgets/display_message.dart';
 import '../../../common/utils/colors.dart';
 
 class MyMessageCard extends StatelessWidget {
-  const MyMessageCard({super.key, required this.message, required this.date, required this.type});
+  const MyMessageCard({
+    super.key,
+    required this.message,
+    required this.date,
+    required this.type,
+    required this.onSwipe,
+    required this.repliedText,
+    required this.username,
+    required this.repliedType,
+  });
 
   final String message;
   final String date;
   final MessageEnum type;
+  final VoidCallback onSwipe;
+  final String repliedText;
+  final String username;
+  final MessageEnum repliedType;
 
   @override
   Widget build(BuildContext context) {
@@ -28,19 +41,20 @@ class MyMessageCard extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding: type == MessageEnum.text
-                    ? const EdgeInsets.only(
-                  left: 10,
-                  right: 30,
-                  top: 5,
-                  bottom: 20,
-                )
-                    : const EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                  top: 10,
-                  bottom: 25,
-                ),
+                padding:
+                    type == MessageEnum.text
+                        ? const EdgeInsets.only(
+                          left: 10,
+                          right: 30,
+                          top: 5,
+                          bottom: 20,
+                        )
+                        : const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                          top: 10,
+                          bottom: 25,
+                        ),
                 child: DisplayMessage(message: message, type: type),
               ),
               Positioned(

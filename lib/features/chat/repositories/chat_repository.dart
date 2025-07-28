@@ -10,6 +10,7 @@ import 'package:whats_app_clone/models/chat_contact_model.dart';
 import 'package:whats_app_clone/models/message_model.dart';
 
 import '../../../common/enums/message_enum.dart';
+import '../../../common/providers/message_reply_provider.dart';
 import '../../../models/user_model.dart';
 
 final chatRepositoryProvider = Provider(
@@ -26,6 +27,7 @@ class ChatRepository {
     required String receiverId,
     required BuildContext context,
     required UserModel senderData,
+    required MessageReply? messageReply,
   }) async {
     try {
       var timeSent = DateTime.now();
@@ -43,6 +45,7 @@ class ChatRepository {
         senderName: senderData.name,
         receiverName: receiverData.name,
         messageType: MessageEnum.text,
+        messageReply: messageReply,
       );
       _saveDataToContactSubDatabase(
         senderData,
@@ -86,7 +89,7 @@ class ChatRepository {
             'senderId': senderData.uid,
             'last_message': text,
             'timeSent': time,
-            'messageType': response['messageType']
+            'messageType': response['messageType'],
           })
           .or(
             """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
@@ -98,7 +101,7 @@ class ChatRepository {
         'senderId': senderData.uid,
         'last_message': text,
         'timeSent': time,
-        'messageType': response['messageType']
+        'messageType': response['messageType'],
       });
     }
   }
@@ -111,6 +114,7 @@ class ChatRepository {
     required String senderName,
     required String receiverName,
     required MessageEnum messageType,
+    required MessageReply? messageReply,
   }) async {
     await supabase.from('messages').insert({
       'messageId': messageId,
@@ -120,6 +124,15 @@ class ChatRepository {
       'timeSent': timeSent,
       'isSeen': false,
       'messageType': messageType.type,
+      'repliedMessage': messageReply == null ? '' : messageReply.message,
+      'repliedTo':
+          messageReply == null
+              ? ''
+              : messageReply.isMe
+              ? senderName
+              : receiverName,
+      'repliedMessageType':
+          messageReply == null ? '' : messageReply.messageEnum.type,
     });
   }
 
@@ -195,6 +208,7 @@ class ChatRepository {
     required UserModel senderData,
     required Ref ref,
     required MessageEnum messageEnum,
+    required MessageReply? messageReply,
   }) async {
     try {
       var timeSent = DateTime.now();
@@ -238,7 +252,7 @@ class ChatRepository {
         messageId: messageId,
         senderName: senderData.name,
         receiverName: receiverData.name,
-        messageType: messageEnum,
+        messageType: messageEnum, messageReply: messageReply,
       );
 
       _saveDataToContactSubDatabase(
@@ -247,7 +261,6 @@ class ChatRepository {
         contactMsg,
         timeSent.toIso8601String(),
       );
-
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
@@ -258,12 +271,13 @@ class ChatRepository {
     required String receiverId,
     required BuildContext context,
     required UserModel senderData,
+    required MessageReply? messageReply,
   }) async {
     try {
       var timeSent = DateTime.now();
 
       var userData =
-      await supabase.from('users').select().eq('uid', receiverId).single();
+          await supabase.from('users').select().eq('uid', receiverId).single();
       UserModel receiverData = UserModel.fromJson(userData);
       var messageId = const Uuid().v1();
 
@@ -274,7 +288,7 @@ class ChatRepository {
         messageId: messageId,
         senderName: senderData.name,
         receiverName: receiverData.name,
-        messageType: MessageEnum.gif,
+        messageType: MessageEnum.gif, messageReply: messageReply,
       );
       _saveDataToContactSubDatabase(
         senderData,
