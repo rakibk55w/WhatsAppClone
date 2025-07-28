@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
 import 'package:whats_app_clone/features/chat/widgets/chat_list.dart';
 
+import '../../../common/providers/message_reply_provider.dart';
 import '../../authentication/controller/authentication_controller.dart';
 import '../widgets/bottom_chat_field.dart';
+import '../widgets/message_reply_preview.dart';
 
 class MobileChatScreen extends ConsumerWidget {
   const MobileChatScreen({super.key, required this.name, required this.uid});
@@ -55,8 +57,19 @@ class MobileChatScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
+
           /// Chat list
           Expanded(child: ChatList(receiverId: uid,)),
+
+          Consumer(
+            builder: (context, ref, _) {
+              final messageReply = ref.watch(messageReplyProvider);
+              if (messageReply != null) {
+                return const MessageReplyPreview();
+              }
+              return const SizedBox.shrink();
+            },
+          ),
 
           /// Text input box
           BottomChatField(receiverId: uid,),

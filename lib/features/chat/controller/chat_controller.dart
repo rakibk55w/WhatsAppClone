@@ -36,6 +36,7 @@ class ChatController {
             messageReply: messageReply,
           ),
         );
+    ref.read(messageReplyProvider.notifier).state = null;
   }
 
   void sendFileMessage(
@@ -59,6 +60,7 @@ class ChatController {
             messageReply: messageReply,
           ),
         );
+    ref.read(messageReplyProvider.notifier).state = null;
   }
 
   void sendGIFMessage(BuildContext context, String url, String receiverId) {
@@ -78,6 +80,7 @@ class ChatController {
             messageReply: messageReply,
           ),
         );
+    ref.read(messageReplyProvider.notifier).state = null;
   }
 
   Stream<List<ChatContactModel>> getChatContacts() {

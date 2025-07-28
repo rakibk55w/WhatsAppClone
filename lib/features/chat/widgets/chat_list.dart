@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:whats_app_clone/common/enums/message_enum.dart';
 import 'package:whats_app_clone/common/widgets/loader.dart';
 import 'package:whats_app_clone/features/chat/controller/chat_controller.dart';
 import 'package:whats_app_clone/models/message_model.dart';
 import 'package:whats_app_clone/features/chat/widgets/my_message_card.dart';
 import 'package:whats_app_clone/features/chat/widgets/sender_message_card.dart';
+
+import '../../../common/providers/message_reply_provider.dart';
 
 class ChatList extends ConsumerStatefulWidget {
   const ChatList({super.key, required this.receiverId});
@@ -26,6 +29,12 @@ class _ChatListState extends ConsumerState<ChatList> {
   void dispose() {
     super.dispose();
     messageController.dispose();
+  }
+
+  void onMessageSwipe(String message, bool isMe, MessageEnum messageEnum) {
+    ref
+        .read(messageReplyProvider.notifier)
+        .state = MessageReply(message, isMe, messageEnum);
   }
 
   @override
@@ -60,24 +69,22 @@ class _ChatListState extends ConsumerState<ChatList> {
             if (messageData.senderId != widget.receiverId) {
               return MyMessageCard(
                 message: messageData.message,
-                date:
-                    DateFormat.jm()
-                        .format(messageData.timeSent)
-                        .toString(),
+                date: DateFormat.jm().format(messageData.timeSent).toString(),
                 type: messageData.messageType,
                 repliedText: messageData.repliedMessage,
                 username: messageData.repliedTo,
                 repliedType: messageData.repliedMessageType,
-                onSwipe: () {},
+                onSwipe: () => onMessageSwipe(messageData.message, true, messageData.messageType),
               );
             }
             return SenderMessageCard(
               message: messageData.message,
-              date:
-                  DateFormat.jm()
-                      .format(messageData.timeSent)
-                      .toString(),
+              date: DateFormat.jm().format(messageData.timeSent).toString(),
               type: messageData.messageType,
+              repliedText: messageData.repliedMessage,
+              username: messageData.repliedTo,
+              repliedType: messageData.repliedMessageType,
+              onSwipe: () => onMessageSwipe(messageData.message, false, messageData.messageType),
             );
           },
         );
