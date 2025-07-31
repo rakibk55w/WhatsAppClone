@@ -32,9 +32,11 @@ class _ChatListState extends ConsumerState<ChatList> {
   }
 
   void onMessageSwipe(String message, bool isMe, MessageEnum messageEnum) {
-    ref
-        .read(messageReplyProvider.notifier)
-        .state = MessageReply(message, isMe, messageEnum);
+    ref.read(messageReplyProvider.notifier).state = MessageReply(
+      message,
+      isMe,
+      messageEnum,
+    );
   }
 
   @override
@@ -66,6 +68,12 @@ class _ChatListState extends ConsumerState<ChatList> {
           itemCount: asyncSnapshot.data!.length,
           itemBuilder: (context, index) {
             var messageData = asyncSnapshot.data![index];
+            if (messageData.isSeen == false &&
+                messageData.senderId == widget.receiverId) {
+              ref
+                  .read(chatControllerProvider)
+                  .setMessageSeenStatus(context, messageData.messageId);
+            }
             if (messageData.senderId != widget.receiverId) {
               return MyMessageCard(
                 message: messageData.message,
@@ -74,7 +82,13 @@ class _ChatListState extends ConsumerState<ChatList> {
                 repliedText: messageData.repliedMessage,
                 username: messageData.repliedTo,
                 repliedType: messageData.repliedMessageType,
-                onSwipe: () => onMessageSwipe(messageData.message, true, messageData.messageType),
+                onSwipe:
+                    () => onMessageSwipe(
+                      messageData.message,
+                      true,
+                      messageData.messageType,
+                    ),
+                isSeen: messageData.isSeen,
               );
             }
             return SenderMessageCard(
@@ -84,7 +98,12 @@ class _ChatListState extends ConsumerState<ChatList> {
               repliedText: messageData.repliedMessage,
               username: messageData.repliedTo,
               repliedType: messageData.repliedMessageType,
-              onSwipe: () => onMessageSwipe(messageData.message, false, messageData.messageType),
+              onSwipe:
+                  () => onMessageSwipe(
+                    messageData.message,
+                    false,
+                    messageData.messageType,
+                  ),
             );
           },
         );

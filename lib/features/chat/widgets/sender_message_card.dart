@@ -98,8 +98,6 @@ class SenderMessageCard extends StatelessWidget {
                           color: Colors.white60,
                         ),
                       ),
-                      const SizedBox(width: 5),
-                      const Icon(Icons.done_all, size: 20, color: Colors.white60),
                     ],
                   ),
                 ),

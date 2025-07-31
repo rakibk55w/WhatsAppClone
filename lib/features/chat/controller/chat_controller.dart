@@ -90,4 +90,8 @@ class ChatController {
   Stream<List<MessageModel>> getChatMessages(String receiverId) {
     return chatRepository.getChatMessages(receiverId);
   }
+
+  void setMessageSeenStatus(BuildContext context, String messageId) {
+    chatRepository.setMessageSeenStatus(context, messageId);
+  }
 }

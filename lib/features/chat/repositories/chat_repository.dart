@@ -252,7 +252,8 @@ class ChatRepository {
         messageId: messageId,
         senderName: senderData.name,
         receiverName: receiverData.name,
-        messageType: messageEnum, messageReply: messageReply,
+        messageType: messageEnum,
+        messageReply: messageReply,
       );
 
       _saveDataToContactSubDatabase(
@@ -288,7 +289,8 @@ class ChatRepository {
         messageId: messageId,
         senderName: senderData.name,
         receiverName: receiverData.name,
-        messageType: MessageEnum.gif, messageReply: messageReply,
+        messageType: MessageEnum.gif,
+        messageReply: messageReply,
       );
       _saveDataToContactSubDatabase(
         senderData,
@@ -296,6 +298,20 @@ class ChatRepository {
         'GIF',
         timeSent.toIso8601String(),
       );
+    } catch (e) {
+      AppDeviceUtils.showSnackBar(context: context, content: e.toString());
+    }
+  }
+
+  Future<void> setMessageSeenStatus(
+    BuildContext context,
+    String messageId,
+  ) async {
+    try {
+      await supabase
+          .from('messages')
+          .update({'isSeen': true})
+          .eq('messageId', messageId);
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
