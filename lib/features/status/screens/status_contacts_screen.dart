@@ -24,7 +24,13 @@ class StatusContactsScreen extends ConsumerWidget {
             return Column(
               children: [
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/status-screen',
+                      arguments: statusData,
+                    );
+                  },
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: ListTile(

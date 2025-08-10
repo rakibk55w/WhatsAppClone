@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
@@ -85,10 +86,11 @@ class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout>
               icon: const Icon(Icons.more_vert, color: AppColors.greyColor),
             ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorColor: AppColors.tabColor,
             indicatorSize: TabBarIndicatorSize.tab,
             indicatorWeight: 4,
+            controller: tabController,
             labelColor: AppColors.tabColor,
             unselectedLabelColor: AppColors.greyColor,
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -96,6 +98,7 @@ class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout>
           ),
         ),
         body: TabBarView(
+          controller: tabController,
           children: [
             const ContactsList(),
             const StatusContactsScreen(),
@@ -105,6 +108,11 @@ class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout>
         floatingActionButton: FloatingActionButton(
           shape: CircleBorder(),
           onPressed: () async {
+            if (kDebugMode) {
+              print(
+                'Floating Action Button Pressed, index: ${tabController.index}',
+              );
+            }
             if (tabController.index == 0) {
               Navigator.pushNamed(context, SelectContactsScreen.routeName);
             } else {
