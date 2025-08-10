@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -111,15 +112,17 @@ class StatusRepository {
             .replaceAll(' ', '')
             .replaceAll('-', '')
             .replaceAll('+', '');
-        var statusData =
-            await supabase
-                .from('status')
-                .select()
-                .eq('phoneNumber', phoneNumber)
-                .gt('createdAt', cutoffTimeStamp)
-                .single();
+        var statusData = await supabase
+            .from('status')
+            .select()
+            .eq('phoneNumber', phoneNumber)
+            .gt('createdAt', cutoffTimeStamp);
 
-        for (var tempData in statusData.values) {
+        if (kDebugMode) {
+          print("Status Data: $statusData");
+        }
+
+        for (var tempData in statusData) {
           StatusModel tempStatus = StatusModel.fromJson(tempData);
           if (tempStatus.whoCanSee.contains(supabase.auth.currentUser!.id)) {
             statusList.add(tempStatus);

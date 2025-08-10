@@ -24,11 +24,13 @@ class StatusModel {
       uid: json['uid'],
       username: json['username'],
       phoneNumber: json['phoneNumber'],
-      photoUrl: json['photoUrl'],
+      photoUrl:
+          (json['photoUrl'] as List<dynamic>).map((e) => e as String).toList(),
       createdAt: DateTime.parse(json['createdAt']),
       profilePic: json['profilePic'],
       statusId: json['statusId'],
-      whoCanSee: json['whoCanSee'],
+      whoCanSee:
+          (json['whoCanSee'] as List<dynamic>).map((e) => e as String).toList(),
     );
   }
 
