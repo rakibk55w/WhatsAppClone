@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -96,5 +95,40 @@ class StatusRepository {
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
+  }
+
+  Future<List<StatusModel>> getStatus(BuildContext context) async {
+    List<StatusModel> statusList = [];
+    try {
+      String cutoffTimeStamp =
+          DateTime.now().subtract(const Duration(hours: 24)).toIso8601String();
+      List<Contact> contacts = [];
+      if (await FlutterContacts.requestPermission()) {
+        contacts = await FlutterContacts.getContacts(withProperties: true);
+      }
+      for (int i = 0; i < contacts.length; i++) {
+        String phoneNumber = contacts[i].phones[0].number
+            .replaceAll(' ', '')
+            .replaceAll('-', '')
+            .replaceAll('+', '');
+        var statusData =
+            await supabase
+                .from('status')
+                .select()
+                .eq('phoneNumber', phoneNumber)
+                .gt('createdAt', cutoffTimeStamp)
+                .single();
+
+        for (var tempData in statusData.values) {
+          StatusModel tempStatus = StatusModel.fromJson(tempData);
+          if (tempStatus.whoCanSee.contains(supabase.auth.currentUser!.id)) {
+            statusList.add(tempStatus);
+          }
+        }
+      }
+    } catch (e) {
+      AppDeviceUtils.showSnackBar(context: context, content: e.toString());
+    }
+    return statusList;
   }
 }

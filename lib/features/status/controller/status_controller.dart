@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whats_app_clone/features/authentication/controller/authentication_controller.dart';
 import 'package:whats_app_clone/features/status/repository/status_repository.dart';
 
+import '../../../models/status_model.dart';
+
 final statusControllerProvider = Provider(
   (ref) => StatusController(
     statusRepository: ref.read(statusRepositoryProvider),
@@ -28,5 +30,9 @@ class StatusController {
         statusImage: file,
       );
     });
+  }
+
+  Future<List<StatusModel>> getStatus(BuildContext context) async {
+    return await statusRepository.getStatus(context);
   }
 }

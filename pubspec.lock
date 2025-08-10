@@ -1210,6 +1210,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  story_view:
+    dependency: "direct main"
+    description:
+      name: story_view
+      sha256: "9035dbdf7633a8491d5ea095dd5a64d794a66e887a2abd5d2b323d510f3e4e54"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.16.6"
   stream_channel:
     dependency: transitive
     description:
