@@ -68,7 +68,7 @@ class StatusRepository {
           .maybeSingle()
           .limit(1);
 
-      if (statusSnapshot != null && statusSnapshot.isNotEmpty) {
+      if (statusSnapshot != null) {
         StatusModel status = StatusModel.fromJson(statusSnapshot);
         statusImageUrls = status.photoUrl;
         statusImageUrls.add(imageUrl);
