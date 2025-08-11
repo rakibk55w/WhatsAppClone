@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:whats_app_clone/common/utils/colors.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
+import 'package:whats_app_clone/features/group/widgets/select_contacts_group.dart';
 import 'package:whats_app_clone/info.dart';
 
 class CreateGroupScreen extends StatefulWidget {
@@ -70,11 +71,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ),
+            const SelectContactsGroup(),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+
+        },
         backgroundColor: AppColors.tabColor,
         shape: CircleBorder(),
 
@@ -86,5 +90,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   Future<void> selectImage() async {
     image = await AppDeviceUtils.pickImageFromGallery(context);
     setState(() {});
+  }
+
+  void createGroup() {
+    if(textController.text.trim().isNotEmpty){
+      
+    }
   }
 }
