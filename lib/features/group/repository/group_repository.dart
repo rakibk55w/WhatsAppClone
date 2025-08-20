@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,8 +10,8 @@ import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/models/group_model.dart';
 
 final groupRepositoryProvider = Provider(
-  (ref) => GroupRepository(supabase: Supabase.instance.client, ref: ref))
-;
+  (ref) => GroupRepository(supabase: Supabase.instance.client, ref: ref),
+);
 
 class GroupRepository {
   GroupRepository({required this.supabase, required this.ref});
@@ -41,10 +40,6 @@ class GroupRepository {
         if (userData.isNotEmpty) {
           uids.add(userData[0]['uid']);
         }
-        if (kDebugMode) {
-          print('User Data: $userData');
-          print('UIDs: ${userData[0]['uid']}');
-        }
       }
 
       var groupId = const Uuid().v1();
@@ -52,7 +47,7 @@ class GroupRepository {
       String groupCoverPicUrl = await ref
           .read(commonSupabaseStorageRepositoryProvider)
           .storeFileToSupabase(
-            bucket: 'profile-pic',
+            bucket: 'group-pic',
             path: groupId,
             file: groupCoverPic!,
           );
@@ -64,6 +59,7 @@ class GroupRepository {
         members: [supabase.auth.currentUser!.id, ...uids],
         lastSenderId: supabase.auth.currentUser!.id,
         lastMessage: 'New group created',
+        timeSent: DateTime.now(),
       );
 
       await supabase.from('group').insert(group.toJson());

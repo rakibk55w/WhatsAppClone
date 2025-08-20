@@ -27,8 +27,8 @@ class _ChatListState extends ConsumerState<ChatList> {
 
   @override
   void dispose() {
-    super.dispose();
     messageController.dispose();
+    super.dispose();
   }
 
   void onMessageSwipe(String message, bool isMe, MessageEnum messageEnum) {

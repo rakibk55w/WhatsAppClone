@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import 'package:whats_app_clone/common/repositories/supabase_storage_repository.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/models/chat_contact_model.dart';
+import 'package:whats_app_clone/models/group_model.dart';
 import 'package:whats_app_clone/models/message_model.dart';
 
 import '../../../common/enums/message_enum.dart';
@@ -174,6 +175,12 @@ class ChatRepository {
           }
           return contacts;
         });
+  }
+
+  Stream<List<GroupModel>> getChatGroups() {
+    return supabase.from('group').stream(primaryKey: ['groupId']).map((rows) {
+      return rows.map((data) => GroupModel.fromJson(data)).toList();
+    });
   }
 
   Stream<List<MessageModel>> getChatMessages(String receiverId) {

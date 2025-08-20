@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:whats_app_clone/common/utils/colors.dart';
 import 'package:whats_app_clone/features/chat/widgets/chat_list.dart';
 
@@ -9,18 +10,23 @@ import '../widgets/bottom_chat_field.dart';
 import '../widgets/message_reply_preview.dart';
 
 class MobileChatScreen extends ConsumerWidget {
-  const MobileChatScreen({super.key, required this.name, required this.uid});
+  const MobileChatScreen({super.key, 
+    required this.name,
+    required this.uid,
+    required this.isGroupChat,
+  });
 
   static const String routeName = '/mobile-chat-screen';
   final String name;
   final String uid;
+  final bool isGroupChat;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         forceMaterialTransparency: true,
-        title: StreamBuilder(
+        title: isGroupChat ? Text(name) : StreamBuilder(
           stream: ref.read(authenticationControllerProvider).userData(uid),
           builder: (context, asyncSnapshot) {
             if (asyncSnapshot.connectionState == ConnectionState.waiting) {
@@ -40,10 +46,13 @@ class MobileChatScreen extends ConsumerWidget {
               children: [
                 Text(name),
                 if (asyncSnapshot.data!.isOnline)
-                  Text('online', style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.normal,
-                  ),),
+                  Text(
+                    'online',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
               ],
             );
           },
@@ -57,9 +66,8 @@ class MobileChatScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-
           /// Chat list
-          Expanded(child: ChatList(receiverId: uid,)),
+          Expanded(child: ChatList(receiverId: uid)),
 
           Consumer(
             builder: (context, ref, _) {
@@ -72,7 +80,7 @@ class MobileChatScreen extends ConsumerWidget {
           ),
 
           /// Text input box
-          BottomChatField(receiverId: uid,),
+          BottomChatField(receiverId: uid),
         ],
       ),
     );

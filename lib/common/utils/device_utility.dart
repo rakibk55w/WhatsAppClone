@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:giphy_get/giphy_get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../env/env.dart';
 //import 'package:connectivity_plus/connectivity_plus.dart';
@@ -144,5 +145,17 @@ class AppDeviceUtils {
       showSnackBar(context: context, content: e.toString());
       return null;
     }
+  }
+
+  static Future<File> getDefaultImage() async {
+    final byteData = await rootBundle.load('assets/images/profile_default.png');
+
+    final file = File(
+      '${(await getTemporaryDirectory()).path}/profile_default.png',
+    );
+
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+
+    return file;
   }
 }

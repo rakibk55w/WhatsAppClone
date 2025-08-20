@@ -62,7 +62,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: textController,
-                decoration: InputDecoration(hintText: 'Enter Group Name'),
+                decoration: const InputDecoration(hintText: 'Enter Group Name'),
               ),
             ),
             Container(
@@ -80,7 +80,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: createGroup,
         backgroundColor: AppColors.tabColor,
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
 
         child: const Icon(Icons.done, color: Colors.white),
       ),
@@ -92,7 +92,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
     setState(() {});
   }
 
-  void createGroup() {
+  void createGroup() async{
+    image ??= await AppDeviceUtils.getDefaultImage();
     if (textController.text.trim().isNotEmpty) {
       ref
           .read(groupControllerProvider)
@@ -102,8 +103,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
             image,
             ref.read(selectedGroupContacts),
           );
-          ref.read(selectedGroupContacts.notifier).update((state) => []);
-          Navigator.pop(context);
+      ref.read(selectedGroupContacts.notifier).update((state) => []);
+      Navigator.pop(context);
     }
   }
 }

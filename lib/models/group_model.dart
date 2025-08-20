@@ -6,6 +6,7 @@ class GroupModel {
     required this.members,
     required this.lastSenderId,
     required this.lastMessage,
+    required this.timeSent,
   });
 
   final String groupName;
@@ -14,6 +15,7 @@ class GroupModel {
   final List<String> members;
   final String lastSenderId;
   final String lastMessage;
+  final DateTime timeSent;
 
   Map<String, dynamic> toJson() {
     return {
@@ -23,6 +25,7 @@ class GroupModel {
       'members': members,
       'lastSenderId': lastSenderId,
       'lastMessage': lastMessage,
+      'timeSent' : timeSent.toIso8601String()
     };
   }
 
@@ -34,6 +37,7 @@ class GroupModel {
       members: List<String>.from(map['members']),
       lastSenderId: map['lastSenderId'] ?? '',
       lastMessage: map['lastMessage'] ?? '',
+      timeSent: DateTime.parse(map['timeSent'])
     );
   }
 }

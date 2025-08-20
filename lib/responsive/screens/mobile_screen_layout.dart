@@ -32,8 +32,8 @@ class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout>
 
   @override
   void dispose() {
-    super.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
