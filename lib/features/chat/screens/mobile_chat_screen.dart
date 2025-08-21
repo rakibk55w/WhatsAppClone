@@ -46,7 +46,7 @@ class MobileChatScreen extends ConsumerWidget {
               children: [
                 Text(name),
                 if (asyncSnapshot.data!.isOnline)
-                  Text(
+                  const Text(
                     'online',
                     style: TextStyle(
                       fontSize: 13,
@@ -59,15 +59,15 @@ class MobileChatScreen extends ConsumerWidget {
         ),
         backgroundColor: AppColors.appBarColor,
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.video_call)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.call)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.more_vert)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.video_call)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.call)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         ],
       ),
       body: Column(
         children: [
           /// Chat list
-          Expanded(child: ChatList(receiverId: uid)),
+          Expanded(child: ChatList(receiverId: uid, isGroupChat: isGroupChat)),
 
           Consumer(
             builder: (context, ref, _) {
@@ -80,7 +80,7 @@ class MobileChatScreen extends ConsumerWidget {
           ),
 
           /// Text input box
-          BottomChatField(receiverId: uid),
+          BottomChatField(receiverId: uid, isGroupChat: isGroupChat),
         ],
       ),
     );

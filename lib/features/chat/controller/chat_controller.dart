@@ -24,7 +24,7 @@ class ChatController {
   final ChatRepository chatRepository;
   final Ref ref;
 
-  void sendTextMessage(BuildContext context, String text, String receiverId) {
+  void sendTextMessage(BuildContext context, String text, String receiverId, bool isGroupChat) {
     final messageReply = ref.read(messageReplyProvider);
     ref
         .read(userDataAuthProvider)
@@ -35,6 +35,7 @@ class ChatController {
             context: context,
             senderData: value!,
             messageReply: messageReply,
+            isGroupChat: isGroupChat,
           ),
         );
     ref.read(messageReplyProvider.notifier).state = null;
@@ -45,6 +46,7 @@ class ChatController {
     File file,
     String receiverId,
     MessageEnum messageEnum,
+    bool isGroupChat
   ) {
     final messageReply = ref.read(messageReplyProvider);
 
@@ -59,12 +61,13 @@ class ChatController {
             context: context,
             senderData: value!,
             messageReply: messageReply,
+            isGroupChat: isGroupChat,
           ),
         );
     ref.read(messageReplyProvider.notifier).state = null;
   }
 
-  void sendGIFMessage(BuildContext context, String url, String receiverId) {
+  void sendGIFMessage(BuildContext context, String url, String receiverId, bool isGroupChat) {
     int gifUrlIndex = url.lastIndexOf('-') + 1;
     String gifUrlPart = url.substring(gifUrlIndex);
     String newGifUrl = 'https://i.giphy.com/media/$gifUrlPart/200.gif';
@@ -79,6 +82,7 @@ class ChatController {
             context: context,
             senderData: value!,
             messageReply: messageReply,
+            isGroupChat: isGroupChat,
           ),
         );
     ref.read(messageReplyProvider.notifier).state = null;
@@ -94,6 +98,10 @@ class ChatController {
 
   Stream<List<MessageModel>> getChatMessages(String receiverId) {
     return chatRepository.getChatMessages(receiverId);
+  }
+
+  Stream<List<MessageModel>> getGroupChatMessages(String groupId) {
+    return chatRepository.getGroupChatMessages(groupId);
   }
 
   void setMessageSeenStatus(BuildContext context, String messageId) {

@@ -55,7 +55,7 @@ class TabletScreenLayout extends StatelessWidget {
                   TabletChatAppbar(),
 
                   /// Chat list
-                  Expanded(child: ChatList(receiverId: '',)),
+                  Expanded(child: ChatList(receiverId: '', isGroupChat: false)),
 
                   /// Message input box
                   Container(

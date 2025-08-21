@@ -4,19 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import 'package:whats_app_clone/common/enums/message_enum.dart';
 import 'package:whats_app_clone/common/widgets/loader.dart';
 import 'package:whats_app_clone/features/chat/controller/chat_controller.dart';
-import 'package:whats_app_clone/models/message_model.dart';
 import 'package:whats_app_clone/features/chat/widgets/my_message_card.dart';
 import 'package:whats_app_clone/features/chat/widgets/sender_message_card.dart';
+import 'package:whats_app_clone/models/message_model.dart';
 
 import '../../../common/providers/message_reply_provider.dart';
 
 class ChatList extends ConsumerStatefulWidget {
-  const ChatList({super.key, required this.receiverId});
+  const ChatList({
+    super.key,
+    required this.receiverId,
+    required this.isGroupChat,
+  });
 
   final String receiverId;
+  final bool isGroupChat;
 
   @override
   ConsumerState<ChatList> createState() => _ChatListState();
@@ -42,9 +48,14 @@ class _ChatListState extends ConsumerState<ChatList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<MessageModel>>(
-      stream: ref
-          .watch(chatControllerProvider)
-          .getChatMessages(widget.receiverId),
+      stream:
+          widget.isGroupChat
+              ? ref
+                  .watch(chatControllerProvider)
+                  .getGroupChatMessages(widget.receiverId)
+              : ref
+                  .watch(chatControllerProvider)
+                  .getChatMessages(widget.receiverId),
       builder: (context, asyncSnapshot) {
         if (asyncSnapshot.connectionState == ConnectionState.waiting) {
           return const Loader();

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,13 +30,36 @@ class ChatRepository {
     required BuildContext context,
     required UserModel senderData,
     required MessageReply? messageReply,
+    required bool isGroupChat,
   }) async {
     try {
       var timeSent = DateTime.now();
+      UserModel? receiverData;
 
-      var userData =
-          await supabase.from('users').select().eq('uid', receiverId).single();
-      UserModel receiverData = UserModel.fromJson(userData);
+      if (!isGroupChat) {
+        var userData =
+            await supabase
+                .from('users')
+                .select()
+                .eq('uid', receiverId)
+                .single();
+        receiverData = UserModel.fromJson(userData);
+      } else {
+        var groupData =
+            await supabase
+                .from('group')
+                .select()
+                .eq('groupId', receiverId)
+                .single();
+        receiverData = UserModel(
+          name: groupData['groupName'],
+          uid: groupData['groupId'],
+          profilePic: groupData['groupPic'] ?? '',
+          isOnline: false,
+          phoneNumber: '',
+          groupId: [],
+        );
+      }
       var messageId = const Uuid().v1();
 
       _saveMessageToMessageSubDatabase(
@@ -53,6 +77,7 @@ class ChatRepository {
         receiverData,
         message,
         timeSent.toIso8601String(),
+        isGroupChat,
       );
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
@@ -61,49 +86,65 @@ class ChatRepository {
 
   Future<void> _saveDataToContactSubDatabase(
     UserModel senderData,
-    UserModel receiverData,
+    UserModel? receiverData,
     String text,
     String time,
+    bool isGroupChat,
   ) async {
-    var response =
+    if (kDebugMode) {
+      print('Group CHat Status: $isGroupChat');
+      print('Receiver Data: $receiverData');
+    }
+    if (isGroupChat) {
+      await supabase
+          .from('group')
+          .update({
+            'lastMessage': text,
+            'timeSent': time,
+            'lastSenderId': supabase.auth.currentUser!.id,
+          })
+          .eq('groupId', receiverData!.uid);
+    } else {
+      var response =
+          await supabase
+              .from('messages')
+              .select('messageId,messageType')
+              .or(
+                """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData!.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
+              )
+              .order('timeSent', ascending: false)
+              .limit(1)
+              .single();
+
+      final existingChat =
+          await supabase.from('chats').select().or(
+            """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
+          ).maybeSingle();
+
+      if (existingChat != null) {
         await supabase
-            .from('messages')
-            .select('messageId,messageType')
+            .from('chats')
+            .update({
+              'messageId': response['messageId'],
+              'receiverId': receiverData.uid,
+              'senderId': senderData.uid,
+              'last_message': text,
+              'timeSent': time,
+              'messageType': response['messageType'],
+            })
             .or(
               """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
-            )
-            .order('timeSent', ascending: false)
-            .limit(1)
-            .single();
-
-    final existingChat =
-        await supabase.from('chats').select().or(
-          """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
-        ).maybeSingle();
-
-    if (existingChat != null) {
-      await supabase
-          .from('chats')
-          .update({
-            'messageId': response['messageId'],
-            'receiverId': receiverData.uid,
-            'senderId': senderData.uid,
-            'last_message': text,
-            'timeSent': time,
-            'messageType': response['messageType'],
-          })
-          .or(
-            """and(senderId.eq.${senderData.uid},receiverId.eq.${receiverData.uid}),and(senderId.eq.${receiverData.uid},receiverId.eq.${senderData.uid})""",
-          );
-    } else {
-      await supabase.from('chats').upsert({
-        'messageId': response['messageId'],
-        'receiverId': receiverData.uid,
-        'senderId': senderData.uid,
-        'last_message': text,
-        'timeSent': time,
-        'messageType': response['messageType'],
-      });
+            );
+      } else {
+        await supabase.from('chats').upsert({
+          'messageId': response['messageId'],
+          'receiverId': receiverData.uid,
+          'senderId': senderData.uid,
+          'last_message': text,
+          'timeSent': time,
+          'messageType': response['messageType'],
+        });
+      }
     }
   }
 
@@ -113,7 +154,7 @@ class ChatRepository {
     required String timeSent,
     required String messageId,
     required String senderName,
-    required String receiverName,
+    required String? receiverName,
     required MessageEnum messageType,
     required MessageReply? messageReply,
   }) async {
@@ -131,7 +172,7 @@ class ChatRepository {
               ? ''
               : messageReply.isMe
               ? senderName
-              : receiverName,
+              : receiverName ?? '',
       'repliedMessageType':
           messageReply == null ? '' : messageReply.messageEnum.type,
     });
@@ -208,6 +249,26 @@ class ChatRepository {
         });
   }
 
+  Stream<List<MessageModel>> getGroupChatMessages(String groupId) {
+    return supabase
+        .from('messages')
+        .stream(primaryKey: ['messageId'])
+        .order('timeSent', ascending: true)
+        .asyncMap((rows) async {
+          List<MessageModel> filteredMessages = [];
+
+          for (var row in rows) {
+            final isGroupChatMessage = row['receiverId'] == groupId;
+
+            if (isGroupChatMessage) {
+              filteredMessages.add(MessageModel.fromJson(row));
+            }
+          }
+
+          return filteredMessages;
+        });
+  }
+
   Future<void> sendFileMessage({
     required BuildContext context,
     required File file,
@@ -216,14 +277,38 @@ class ChatRepository {
     required Ref ref,
     required MessageEnum messageEnum,
     required MessageReply? messageReply,
+    required bool isGroupChat,
   }) async {
     try {
       var timeSent = DateTime.now();
       var messageId = const Uuid().v1();
+      UserModel? receiverData;
 
-      var userData =
-          await supabase.from('users').select().eq('uid', receiverId).single();
-      UserModel receiverData = UserModel.fromJson(userData);
+      if (!isGroupChat) {
+        var userData =
+            await supabase
+                .from('users')
+                .select()
+                .eq('uid', receiverId)
+                .single();
+        receiverData = UserModel.fromJson(userData);
+      }
+      else {
+        var groupData =
+            await supabase
+                .from('group')
+                .select()
+                .eq('groupId', receiverId)
+                .single();
+        receiverData = UserModel(
+          name: groupData['groupName'],
+          uid: groupData['groupId'],
+          profilePic: groupData['groupPic'] ?? '',
+          isOnline: false,
+          phoneNumber: '',
+          groupId: [],
+        );
+      }
 
       String fileUrl = await ref
           .read(commonSupabaseStorageRepositoryProvider)
@@ -258,7 +343,7 @@ class ChatRepository {
         timeSent: timeSent.toIso8601String(),
         messageId: messageId,
         senderName: senderData.name,
-        receiverName: receiverData.name,
+        receiverName: receiverData?.name,
         messageType: messageEnum,
         messageReply: messageReply,
       );
@@ -268,6 +353,7 @@ class ChatRepository {
         receiverData,
         contactMsg,
         timeSent.toIso8601String(),
+        isGroupChat,
       );
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
@@ -280,13 +366,37 @@ class ChatRepository {
     required BuildContext context,
     required UserModel senderData,
     required MessageReply? messageReply,
+    required bool isGroupChat,
   }) async {
     try {
       var timeSent = DateTime.now();
+      UserModel? receiverData;
 
-      var userData =
-          await supabase.from('users').select().eq('uid', receiverId).single();
-      UserModel receiverData = UserModel.fromJson(userData);
+      if (!isGroupChat) {
+        var userData =
+            await supabase
+                .from('users')
+                .select()
+                .eq('uid', receiverId)
+                .single();
+        receiverData = UserModel.fromJson(userData);
+      }
+      else {
+        var groupData =
+            await supabase
+                .from('group')
+                .select()
+                .eq('groupId', receiverId)
+                .single();
+        receiverData = UserModel(
+          name: groupData['groupName'],
+          uid: groupData['groupId'],
+          profilePic: groupData['groupPic'] ?? '',
+          isOnline: false,
+          phoneNumber: '',
+          groupId: [],
+        );
+      }
       var messageId = const Uuid().v1();
 
       _saveMessageToMessageSubDatabase(
@@ -295,7 +405,7 @@ class ChatRepository {
         timeSent: timeSent.toIso8601String(),
         messageId: messageId,
         senderName: senderData.name,
-        receiverName: receiverData.name,
+        receiverName: receiverData?.name,
         messageType: MessageEnum.gif,
         messageReply: messageReply,
       );
@@ -304,6 +414,7 @@ class ChatRepository {
         receiverData,
         'GIF',
         timeSent.toIso8601String(),
+        isGroupChat,
       );
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());

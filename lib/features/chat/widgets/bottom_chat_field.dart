@@ -7,6 +7,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:giphy_get/giphy_get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import 'package:whats_app_clone/common/enums/message_enum.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/features/chat/controller/chat_controller.dart';
@@ -14,9 +15,13 @@ import 'package:whats_app_clone/features/chat/controller/chat_controller.dart';
 import '../../../common/utils/colors.dart';
 
 class BottomChatField extends ConsumerStatefulWidget {
-  const BottomChatField({super.key, required this.receiverId});
+  const BottomChatField({super.key, 
+    required this.receiverId,
+    required this.isGroupChat,
+  });
 
   final String receiverId;
+  final bool isGroupChat;
 
   @override
   ConsumerState<BottomChatField> createState() => _BottomChatFieldState();
@@ -55,6 +60,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
         context,
         _messageController.text.trim(),
         widget.receiverId,
+        widget.isGroupChat,
       );
       setState(() {
         _messageController.text = '';
@@ -82,7 +88,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   void sendFileMessage(File file, MessageEnum messageEnum) {
     ref
         .read(chatControllerProvider)
-        .sendFileMessage(context, file, widget.receiverId, messageEnum);
+        .sendFileMessage(context, file, widget.receiverId, messageEnum, widget.isGroupChat);
   }
 
   Future<void> selectImage() async {
@@ -103,7 +109,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     GiphyGif? gif = await AppDeviceUtils.pickGIF(context);
     if (gif != null) {
       ref.read(chatControllerProvider).sendGIFMessage(
-          context, gif.url!, widget.receiverId);
+          context, gif.url!, widget.receiverId, widget.isGroupChat);
     }
   }
 
