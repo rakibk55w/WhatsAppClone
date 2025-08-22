@@ -343,7 +343,7 @@ class ChatRepository {
         timeSent: timeSent.toIso8601String(),
         messageId: messageId,
         senderName: senderData.name,
-        receiverName: receiverData?.name,
+        receiverName: receiverData.name,
         messageType: messageEnum,
         messageReply: messageReply,
       );
@@ -405,7 +405,7 @@ class ChatRepository {
         timeSent: timeSent.toIso8601String(),
         messageId: messageId,
         senderName: senderData.name,
-        receiverName: receiverData?.name,
+        receiverName: receiverData.name,
         messageType: MessageEnum.gif,
         messageReply: messageReply,
       );
