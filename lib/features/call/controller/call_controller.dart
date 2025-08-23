@@ -60,4 +60,8 @@ class CallController {
       callRepository.createCall(context, senderData, receiverData);
     });
   }
+
+  Stream<List<dynamic>> callStream() {
+    return callRepository.callStream();
+  }
 }

@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
+import 'package:whats_app_clone/features/call/screens/call_screen.dart';
 import 'package:whats_app_clone/models/call_model.dart';
 
 final callRepositoryProvider = Provider<CallRepository>(
@@ -12,6 +13,13 @@ class CallRepository {
   CallRepository({required this.supabase});
 
   final SupabaseClient supabase;
+
+  Stream<List<dynamic>> callStream() {
+    return supabase
+        .from('call')
+        .stream(primaryKey: ['callId'])
+        .eq('receiverId', supabase.auth.currentUser!.id);
+  }
 
   Future<void> createCall(
     BuildContext context,
@@ -29,6 +37,8 @@ class CallRepository {
         'receiverImage': receiverData.receiverImage,
         'hasCalled': true,
       });
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) => CallScreen(channelId: senderData.callId, call: senderData, isGroupChat: false)));
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }
