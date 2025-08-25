@@ -6,7 +6,7 @@ class CallModel {
   final String receiverName;
   final String receiverImage;
   final String callId;
-  final bool hasCalled;
+  final bool callOngoing;
 
   CallModel({
     required this.callerId,
@@ -16,7 +16,7 @@ class CallModel {
     required this.receiverName,
     required this.receiverImage,
     required this.callId,
-    required this.hasCalled,
+    required this.callOngoing,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,7 +28,7 @@ class CallModel {
       'receiverName': receiverName,
       'receiverImage': receiverImage,
       'callId': callId,
-      'hasCalled': hasCalled,
+      'callOngoing': callOngoing,
     };
   }
 
@@ -41,7 +41,7 @@ class CallModel {
       receiverName: map['receiverName'] ?? '',
       receiverImage: map['receiverImage'] ?? '',
       callId: map['callId'] ?? '',
-      hasCalled: map['hasCalled'] ?? false,
+      callOngoing: map['callOngoing'] ?? true,
     );
   }
 }

@@ -1,9 +1,11 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:whats_app_clone/common/widgets/loader.dart';
 import 'package:whats_app_clone/config/agora_config.dart';
+import 'package:whats_app_clone/features/call/controller/call_controller.dart';
 
 import 'package:whats_app_clone/models/call_model.dart';
 
@@ -52,7 +54,9 @@ class _CallScreenState extends ConsumerState<CallScreen> {
                   controller: VideoViewController.remote(
                     rtcEngine: _engine,
                     canvas: VideoCanvas(uid: _remoteUid),
-                    connection: RtcConnection(channelId: widget.channelId),
+                    connection: RtcConnection(
+                      channelId: widget.channelId,
+                    ),
                   ),
                 )
                 : const Loader(),
@@ -85,8 +89,11 @@ class _CallScreenState extends ConsumerState<CallScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.call_end, color: Colors.red),
-                    onPressed: () {
-                      _engine.leaveChannel();
+                    onPressed: () async {
+                      await _engine.leaveChannel();
+                      ref
+                          .read(callControllerProvider)
+                          .endCall(context, widget.call.callId);
                       Navigator.pop(context);
                     },
                   ),
@@ -106,10 +113,18 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   }
 
   Future<void> initAgora() async {
+    final token = AgoraConfig.token;
+    final logger = Logger();
+    logger.i('Agora Token: $token');
     await [Permission.camera, Permission.microphone].request();
 
     _engine = createAgoraRtcEngine();
-    await _engine.initialize(RtcEngineContext(appId: AgoraConfig.appId));
+    await _engine.initialize(
+      RtcEngineContext(
+        appId: AgoraConfig.appId,
+        channelProfile: ChannelProfileType.channelProfileCommunication,
+      ),
+    );
 
     _engine.registerEventHandler(
       RtcEngineEventHandler(
@@ -131,14 +146,18 @@ class _CallScreenState extends ConsumerState<CallScreen> {
       ),
     );
 
+    await _engine.enableAudio();
     await _engine.enableVideo();
     await _engine.startPreview();
 
     await _engine.joinChannel(
-      token: '',
+      token: token,
       channelId: widget.channelId,
       uid: 0,
-      options: const ChannelMediaOptions(),
+      options: const ChannelMediaOptions(
+        clientRoleType: ClientRoleType.clientRoleBroadcaster,
+        channelProfile: ChannelProfileType.channelProfileCommunication,
+      ),
     );
   }
 }

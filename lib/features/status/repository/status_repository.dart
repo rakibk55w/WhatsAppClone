@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -117,10 +116,6 @@ class StatusRepository {
             .select()
             .eq('phoneNumber', phoneNumber)
             .gt('createdAt', cutoffTimeStamp);
-
-        if (kDebugMode) {
-          print("Status Data: $statusData");
-        }
 
         for (var tempData in statusData) {
           StatusModel tempStatus = StatusModel.fromJson(tempData);

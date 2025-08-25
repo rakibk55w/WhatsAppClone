@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whats_app_clone/features/call/controller/call_controller.dart';
 import 'package:whats_app_clone/features/call/screens/call_screen.dart';
@@ -12,14 +13,21 @@ class CallPickupScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final Logger logger = Logger();
     final SupabaseClient supabase = Supabase.instance.client;
     return StreamBuilder(
       stream: ref.watch(callControllerProvider).callStream(),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          logger.i('Async Snapshot Data: $snapshot');
           final call = snapshot.data!.first;
           CallModel callData = CallModel.fromMap(call as Map<String, dynamic>);
-          if (callData.receiverId == supabase.auth.currentUser!.id) {
+
+          logger.i('Converted call: $call');
+          logger.i('Call Data: $callData');
+
+          if (callData.receiverId == supabase.auth.currentUser!.id &&
+              callData.callOngoing == true) {
             return Scaffold(
               body: Container(
                 alignment: Alignment.center,
@@ -56,16 +64,12 @@ class CallPickupScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.call_end,
-                            size: 30,
-                            color: Colors.red,
-                          ),
-                        ),
-                        const SizedBox(width: 25),
-                        IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ref
+                                .read(callControllerProvider)
+                                .endCall(context, callData.callId);
+                            Navigator.pop(context);
+                          },
                           icon: const Icon(
                             Icons.call_end,
                             color: Colors.redAccent,
@@ -74,7 +78,17 @@ class CallPickupScreen extends ConsumerWidget {
                         const SizedBox(width: 25),
                         IconButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => CallScreen(channelId: callData.callId, call: callData, isGroupChat: false)));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => CallScreen(
+                                      channelId: callData.callId,
+                                      call: callData,
+                                      isGroupChat: false,
+                                    ),
+                              ),
+                            );
                           },
                           icon: Icon(Icons.call, color: Colors.green),
                         ),

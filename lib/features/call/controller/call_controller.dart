@@ -43,7 +43,7 @@ class CallController {
         receiverId: receiverId,
         receiverName: receiverName,
         receiverImage: receiverImage,
-        hasCalled: true,
+        callOngoing: true,
       );
 
       CallModel receiverData = CallModel(
@@ -54,11 +54,15 @@ class CallController {
         receiverId: receiverId,
         receiverName: receiverName,
         receiverImage: receiverImage,
-        hasCalled: false,
+        callOngoing: false,
       );
 
       callRepository.createCall(context, senderData, receiverData);
     });
+  }
+
+  void endCall(BuildContext context, String callId ) {
+    callRepository.endCall(context, callId);
   }
 
   Stream<List<dynamic>> callStream() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whats_app_clone/common/utils/device_utility.dart';
 import 'package:whats_app_clone/features/call/screens/call_screen.dart';
@@ -15,10 +16,32 @@ class CallRepository {
   final SupabaseClient supabase;
 
   Stream<List<dynamic>> callStream() {
-    return supabase
+    final logger = Logger();
+    // final initial = await supabase
+    //   .from('call')
+    //   .select()
+    //   .eq('callOngoing', true);
+    // yield initial;
+
+    // final realtimeStream = supabaseP
+    //   .from('call')
+    //   .stream(primaryKey: ['callId'])
+    //   .eq('callOngoing', true);
+
+    // yield* realtimeStream;
+
+    final userId = supabase.auth.currentUser!.id;
+    final realtimeStream = supabase
         .from('call')
         .stream(primaryKey: ['callId'])
-        .eq('receiverId', supabase.auth.currentUser!.id);
+        .eq('callOngoing', true)
+        .order('callTime', ascending: true)
+        .map((rows) {
+          return rows.where((r) => r['receiverId'] == userId).toList();
+        });
+
+    logger.i('Call Stream Result: $realtimeStream');
+    return realtimeStream;
   }
 
   Future<void> createCall(
@@ -35,10 +58,31 @@ class CallRepository {
         'receiverId': receiverData.receiverId,
         'receiverName': receiverData.receiverName,
         'receiverImage': receiverData.receiverImage,
-        'hasCalled': true,
+        'callOngoing': senderData.callOngoing,
       });
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => CallScreen(channelId: senderData.callId, call: senderData, isGroupChat: false)));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => CallScreen(
+                channelId: senderData.callId,
+                call: senderData,
+                isGroupChat: false,
+              ),
+        ),
+      );
+    } catch (e) {
+      AppDeviceUtils.showSnackBar(context: context, content: e.toString());
+    }
+  }
+
+  Future<void> endCall(BuildContext context, String callId) async {
+    try {
+      await supabase
+          .from('call')
+          .update({'callOngoing': false})
+          .eq('callId', callId);
     } catch (e) {
       AppDeviceUtils.showSnackBar(context: context, content: e.toString());
     }

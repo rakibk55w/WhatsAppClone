@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -91,10 +90,6 @@ class ChatRepository {
     String time,
     bool isGroupChat,
   ) async {
-    if (kDebugMode) {
-      print('Group CHat Status: $isGroupChat');
-      print('Receiver Data: $receiverData');
-    }
     if (isGroupChat) {
       await supabase
           .from('group')
